@@ -22,6 +22,8 @@ function DiffColumn({ label, marker, action, lines, variant }: DiffColumnProps) 
       {lines.length > 0 ? (
         <ul className="diff-lines">
           {lines.map((line, index) => (
+            // Duplicate evidence lines are valid; their immutable position distinguishes them.
+            // biome-ignore lint/suspicious/noArrayIndexKey: stateless exact-diff rows have no stable external id
             <li key={`${line}-${index}`}>
               <span className="diff-marker" aria-hidden="true">
                 {marker}

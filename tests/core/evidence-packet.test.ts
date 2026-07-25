@@ -51,6 +51,51 @@ describe("evidence packet runtime schema", () => {
 
   it.each([
     {
+      name: "category",
+      mutate: (packet: typeof demoPacket) => {
+        packet.changes[0]!.category = "general";
+        packet.summary.categories.pricing = 0;
+        packet.summary.categories.general = 1;
+      },
+      path: "changes.0.category",
+    },
+    {
+      name: "priority",
+      mutate: (packet: typeof demoPacket) => {
+        packet.changes[0]!.priority = "low";
+        packet.summary.priorities.high = 0;
+        packet.summary.priorities.low = 1;
+      },
+      path: "changes.0.priority",
+    },
+    {
+      name: "score",
+      mutate: (packet: typeof demoPacket) => {
+        packet.changes[0]!.score = 25;
+      },
+      path: "changes.0.score",
+    },
+    {
+      name: "reason",
+      mutate: (packet: typeof demoPacket) => {
+        packet.changes[0]!.reasons = ["Invented classifier explanation"];
+      },
+      path: "changes.0.reasons",
+    },
+  ])("rejects a forged deterministic classifier $name", ({ mutate, path }) => {
+    const packet = structuredClone(demoPacket);
+    mutate(packet);
+
+    const result = evidencePacketSchema.safeParse(packet);
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.map((issue) => issue.path.join("."))).toContain(path);
+    }
+  });
+
+  it.each([
+    {
       name: "a forged successful packet identifier",
       packet: {
         ...demoPacket,

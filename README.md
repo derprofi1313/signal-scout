@@ -10,17 +10,24 @@ It is a Git-native, local-first evidence pipeline. The quick start below runs
 the checked-out repository; it does not assume a published npm package or a
 hosted Signal Scout service.
 
+The package manifest is intentionally private to prevent accidental npm
+publication under the unscoped project name. The public v0.1.0 distribution is
+the GitHub source release.
+
 ## Quick start
 
-Requirements: Node.js 24 or newer and pnpm 11 or newer.
+Requirements: Node.js 24 or newer and pnpm 11.6.0.
 
 ```bash
+npm install --global pnpm@11.6.0
 git clone https://github.com/derprofi1313/signal-scout.git
 cd signal-scout
-corepack enable
 pnpm install --frozen-lockfile
 pnpm cli init
 ```
+
+The explicit pnpm install works on Node.js releases that no longer bundle
+Corepack and matches the version pinned by this repository.
 
 Replace the example URL in `signal-scout.config.json`, then run:
 
@@ -50,6 +57,22 @@ separately from the machine-readable JSON and reviewable Markdown reports under
 Each successful scan atomically replaces the current files for that source.
 Review or copy reports elsewhere before the next scan if you need run-by-run
 retention.
+
+### Opt in to Git history
+
+`/.signal-scout` is ignored by default so a capture cannot be published from
+this repository by accident. After reviewing the generated files, explicitly
+stage the evidence you want Git to track:
+
+```bash
+git add -f .signal-scout
+git diff --cached -- .signal-scout
+```
+
+Commit only evidence that is safe to retain and share. After that first
+intentional commit, later scans update tracked files and a normal
+`git diff -- .signal-scout` shows the next change. Remove the paths from the
+index again if you no longer want capture data in repository history.
 
 ## Configure sources
 
@@ -153,10 +176,11 @@ classification, packet ordering, and hashing are deterministic. Reports retain
 the exact normalized fragments used for classification, and limitations travel
 with the packet.
 
-SHA-256 hashes make later modification detectable when a trusted hash is
-available for comparison. They do not prove who published a page, that the
-capture saw every dynamic element, or that a remote server returned the same
-content to every observer. Read the complete
+Raw and normalized SHA-256 values let reviewers compare captured
+representations with trusted copies. They do not hash or sign the packet file,
+prove who published a page, show that the capture saw every dynamic element, or
+guarantee that a remote server returned the same content to every observer.
+Read the complete
 [trust model](docs/trust-model.md) before using reports for a consequential
 decision.
 
@@ -192,6 +216,7 @@ pnpm format:check
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm audit
 pnpm build
 pnpm check
 pnpm exec playwright install chromium
@@ -199,7 +224,8 @@ pnpm test:e2e
 ```
 
 `pnpm check` runs formatting, linting, type checking, coverage tests, and the
-production build. Browser installation and `pnpm test:e2e` remain explicit.
+production build. CI also runs the full dependency audit. Browser installation
+and `pnpm test:e2e` remain explicit.
 
 ## Security
 

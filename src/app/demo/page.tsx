@@ -45,19 +45,18 @@ function CaptureCard({ label, capture, hashes }: CaptureCardProps) {
         <div>
           <dt>Raw SHA-256</dt>
           <dd>
-            <code title={hashes.raw} aria-label={`Full raw SHA-256: ${hashes.raw}`}>
-              {shortHash(hashes.raw)}
+            <code title={hashes.raw}>
+              <span className="sr-only">Full raw SHA-256: {hashes.raw}</span>
+              <span aria-hidden="true">{shortHash(hashes.raw)}</span>
             </code>
           </dd>
         </div>
         <div>
           <dt>Normalized SHA-256</dt>
           <dd>
-            <code
-              title={hashes.normalized}
-              aria-label={`Full normalized SHA-256: ${hashes.normalized}`}
-            >
-              {shortHash(hashes.normalized)}
+            <code title={hashes.normalized}>
+              <span className="sr-only">Full normalized SHA-256: {hashes.normalized}</span>
+              <span aria-hidden="true">{shortHash(hashes.normalized)}</span>
             </code>
           </dd>
         </div>
@@ -158,7 +157,7 @@ export default function DemoPage() {
           />
 
           {previousCapture && currentCapture && previousHashes && currentHashes ? (
-            <div className="capture-grid" aria-label="Capture and hash comparison">
+            <section className="capture-grid" aria-label="Capture and hash comparison">
               <CaptureCard
                 label="Previous capture"
                 capture={previousCapture}
@@ -169,7 +168,7 @@ export default function DemoPage() {
                 capture={currentCapture}
                 hashes={currentHashes}
               />
-            </div>
+            </section>
           ) : null}
         </div>
       </section>

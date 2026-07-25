@@ -6,6 +6,10 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+No changes yet.
+
+## [0.1.0] - 2026-07-25
+
 ### Added
 
 - Git-native capture, normalization, semantic diff, deterministic
@@ -17,4 +21,7 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Architecture, trust, contribution, conduct, and security documentation.
 
 No npm publication or hosted Signal Scout service is represented by this
-unreleased section.
+release.
+
+[Unreleased]: https://github.com/derprofi1313/signal-scout/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/derprofi1313/signal-scout/releases/tag/v0.1.0

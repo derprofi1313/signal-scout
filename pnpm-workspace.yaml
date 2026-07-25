@@ -1,6 +1,5 @@
 allowBuilds:
   esbuild: true
-  sharp: set this to true or false
   unrs-resolver: true
 overrides:
   "postcss@<8.5.18": "8.5.23"
@@ -11,3 +10,6 @@ minimumReleaseAgeExclude:
   - playwright-core@1.62.0
   - playwright@1.62.0
   - postcss@8.5.23
+  - esbuild@0.28.1
+  # Existing Cheerio transitive dependency; required for reproducible installs during its cooldown.
+  - undici@7.29.0

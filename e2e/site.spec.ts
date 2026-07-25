@@ -57,6 +57,14 @@ test("derives the landing specimen from the checked demo packet", async ({ page 
   await expect(chain.getByText(pricingChange!.reasons[0]!, { exact: true })).toBeVisible();
 });
 
+test("makes Git tracking an explicit opt-in", async ({ page }) => {
+  await page.goto("/");
+
+  const commandSequence = page.getByLabel("Signal Scout command sequence");
+  await expect(commandSequence).toContainText("git add -f .signal-scout");
+  await expect(commandSequence).toContainText("git diff --cached -- .signal-scout");
+});
+
 test("operates the evidence filters from the keyboard", async ({ page }) => {
   await page.goto("/demo");
 

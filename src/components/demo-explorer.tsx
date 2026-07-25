@@ -26,7 +26,8 @@ export function DemoExplorer({ packet }: DemoExplorerProps) {
 
   return (
     <div>
-      <div className="filter-bar" role="group" aria-label="Filter evidence changes">
+      <fieldset className="filter-bar">
+        <legend className="sr-only">Filter evidence changes</legend>
         {filters.map((option) => (
           <button
             className="filter-button"
@@ -39,7 +40,7 @@ export function DemoExplorer({ packet }: DemoExplorerProps) {
             {option.label}
           </button>
         ))}
-      </div>
+      </fieldset>
 
       <p className="sr-only" aria-live="polite">
         Showing {visibleChanges.length} of {packet.changes.length} fixture changes.
@@ -67,12 +68,11 @@ export function DemoExplorer({ packet }: DemoExplorerProps) {
                       <p>{change.reasons.slice(1).join(" · ")}</p>
                     ) : null}
                   </div>
-                  <p
-                    className="change-score"
-                    aria-label={`Priority score ${change.score} out of 100`}
-                  >
+                  <p className="change-score">
+                    <span className="sr-only">Priority score </span>
                     <strong>{change.score}</strong>
-                    <span>score</span>
+                    <span aria-hidden="true">score</span>
+                    <span className="sr-only"> out of 100</span>
                   </p>
                 </header>
                 <DiffFragment change={change} />

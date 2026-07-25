@@ -6,7 +6,7 @@
 
 ## Product decision
 
-Signal Scout is a Git-native evidence pipeline for competitive changes. It watches public product, pricing, changelog, and positioning pages, normalizes away predictable noise, and writes a tamper-evident evidence packet containing the source URL, capture time, SHA-256 hashes, exact before/after fragments, deterministic classification, and a human-readable report.
+Signal Scout is a Git-native evidence pipeline for competitive changes. It watches public product, pricing, changelog, and positioning pages, normalizes away predictable noise, and writes a reviewable evidence packet containing the source URL, capture time, SHA-256 hashes, exact before/after fragments, deterministic classification, and a human-readable report. Packet-file integrity depends on trusted Git history or an external file hash.
 
 The first release is intentionally not another hosted “AI competitor dashboard.” Its wedge is reproducible proof that can be reviewed like code:
 

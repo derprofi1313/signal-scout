@@ -119,4 +119,27 @@ describe("Markdown evidence report", () => {
     expect(markdown).toContain("No semantic changes were recorded for this capture.");
     expect(markdown).toContain("- None disclosed.");
   });
+
+  it("renders terminal controls visibly and encodes raw HTML from untrusted fields", () => {
+    const unsafePacket = structuredClone(packet);
+    unsafePacket.source.name = "<script>alert(1)</script>\u001b]52;c;clipboard\u0007";
+    unsafePacket.changes[0]!.before = [
+      "$29 per workspace / month\u001b]52;c;clipboard\u0007",
+      "\u009b31mred",
+    ];
+    unsafePacket.limitations = ["<img src=x onerror=alert(1)>\u202e"];
+
+    const markdown = renderMarkdown(unsafePacket);
+
+    for (const unsafeCharacter of ["\u0007", "\u001b", "\u009b", "\u202e"]) {
+      expect(markdown).not.toContain(unsafeCharacter);
+    }
+    expect(markdown).not.toContain("<script>");
+    expect(markdown).not.toContain("<img");
+    expect(markdown).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+    expect(markdown).toContain("&lt;img src=x onerror=alert(1)&gt;");
+    expect(markdown).toContain("\\u001b]52;c;clipboard\\u0007");
+    expect(markdown).toContain("\\u009b31mred");
+    expect(markdown).toContain("\\u202e");
+  });
 });

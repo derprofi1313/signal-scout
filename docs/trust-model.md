@@ -19,15 +19,20 @@ Scout deterministically:
 Every packet identifies its schema as `signal-scout/evidence@1`, retains the
 requested and canonical URL metadata, records capture times in ISO 8601 UTC,
 preserves exact before/after normalized fragments, and carries known
-limitations.
+limitations. Runtime parsing recomputes the deterministic classifier fields
+from those fragments and rejects altered categories, priorities, scores, or
+reasons.
 
 ## What the hashes prove
 
 A SHA-256 value is a content fingerprint. If a trusted earlier packet says a
 normalized document had hash `A` and a later packet says `B`, reviewers can
-verify that the normalized representations differ. Recomputing a packet hash
-also exposes accidental or deliberate modification relative to a separately
-trusted copy.
+verify that the normalized representations differ.
+
+Signal Scout does not compute a hash or signature over the packet file itself,
+and the packet ID is not an integrity seal. Detect packet-file modification by
+comparing it with a trusted Git commit, signed artifact, or separately recorded
+file hash.
 
 The hashes are not signatures. By themselves they do not prove:
 
@@ -41,6 +46,10 @@ The hashes are not signatures. By themselves they do not prove:
 
 Use Git history, signed commits, protected artifact storage, or an independent
 timestamping system when those properties are required.
+
+This repository ignores `/.signal-scout` by default. Git-backed retention is an
+explicit operator choice: inspect the local files, force-add only approved
+evidence, and review the staged diff before committing it.
 
 ## Trust boundaries
 
@@ -67,7 +76,9 @@ ownership, publisher identity, or the completeness of a response.
 The process trusts its Node.js runtime, dependencies, filesystem, environment,
 and clock. Atomic replacement reduces partial-write risk but does not protect
 against a compromised machine or an actor with write access to both evidence
-and its comparison history.
+and its comparison history. Markdown reports encode raw HTML and display
+terminal or bidirectional controls as visible Unicode escapes before output;
+machine-readable JSON retains the original evidence.
 
 ### GitHub Actions
 

@@ -1,3 +1,4 @@
+import { realpathSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -263,7 +264,22 @@ export async function runCli(argv: string[], io: CliIo = defaultIo()): Promise<n
   }
 }
 
+export function isDirectCliEntry(
+  entryPath: string | undefined,
+  moduleUrl = import.meta.url,
+): boolean {
+  if (!entryPath) {
+    return false;
+  }
+
+  try {
+    return realpathSync(resolve(entryPath)) === realpathSync(fileURLToPath(moduleUrl));
+  } catch {
+    return false;
+  }
+}
+
 const entryPath = process.argv[1];
-if (entryPath && resolve(entryPath) === fileURLToPath(import.meta.url)) {
+if (isDirectCliEntry(entryPath)) {
   process.exitCode = await runCli(process.argv.slice(2));
 }

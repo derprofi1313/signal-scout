@@ -116,10 +116,15 @@ Markdown renderer, tests, and website fixture. A packet includes source and
 capture metadata, previous/current raw and normalized hashes, status,
 limitations, ordered changes, and summary counts.
 
+Runtime validation recomputes every category, score, priority, and reason from
+the stored fragment and source kind. A structurally valid packet with altered
+classifier output is rejected before the CLI renders it.
+
 Packet IDs derive from the source ID and current normalized-hash prefix. Equal
 normalized input for the same source therefore produces the same packet ID even
 when observed in another run. Capture metadata still records when observations
-occur.
+occur. The ID identifies evidence content; it is not a packet-level hash or
+signature.
 
 ## Storage and reporting
 
@@ -135,9 +140,15 @@ policy.
 The CLI sends machine-consumable JSON or Markdown to stdout and diagnostics to
 stderr. Invalid configuration or usage exits `2`; any source failure exits `1`;
 a fully successful baseline, changed, or unchanged scan exits `0`.
+Markdown rendering encodes raw HTML in prose fields and writes terminal,
+bidirectional, and embedded line controls as visible `\uXXXX` escapes. The JSON
+packet retains the original strings.
 
-Signal Scout never commits evidence or opens a pull request. The operator
-reviews artifacts and chooses whether they belong in Git history.
+Signal Scout never commits evidence or opens a pull request. The repository
+ignores `/.signal-scout` by default to prevent accidental publication. The
+operator reviews artifacts first and must explicitly opt in with
+`git add -f .signal-scout` before they belong in Git history; subsequent tracked
+scans can be reviewed with a normal Git diff.
 
 ## Website boundary
 
@@ -158,7 +169,7 @@ or customer activity.
 - Playwright verifies the landing page, demo interaction, keyboard behavior,
   reduced motion, 320 px layout, and WCAG checks.
 - `pnpm check` runs formatting, lint, type checking, coverage, and production
-  build. `pnpm test:e2e` is an explicit browser gate.
+  build. CI adds `pnpm audit`; `pnpm test:e2e` is an explicit browser gate.
 
 See [`trust-model.md`](trust-model.md) for what this architecture proves and
 what remains outside its boundary.

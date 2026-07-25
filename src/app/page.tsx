@@ -83,7 +83,7 @@ export default function Home() {
                 Inspect the evidence
                 <span aria-hidden="true">↗</span>
               </Link>
-              <div className="install-command" aria-label="Quick start command">
+              <div className="install-command">
                 <span aria-hidden="true">$</span>
                 <code>pnpm cli init</code>
               </div>
@@ -127,16 +127,19 @@ export default function Home() {
             <p className="eyebrow">The local contract</p>
             <h2 id="contract-title">A reviewable artifact, without a hosted dependency.</h2>
             <p>
-              Baselines and change packets stay beside the code that created them. Deterministic
-              evidence works without an API key.
+              Baselines and change packets stay local until you explicitly opt them into Git.
+              Deterministic evidence works without an API key.
             </p>
-            <pre aria-label="Signal Scout command sequence">
-              <code>
-                <span>pnpm cli init</span>
-                <span>pnpm cli scan</span>
-                <span>git diff -- .signal-scout</span>
-              </code>
-            </pre>
+            <section aria-label="Signal Scout command sequence">
+              <pre>
+                <code>
+                  <span>pnpm cli init</span>
+                  <span>pnpm cli scan</span>
+                  <span>git add -f .signal-scout</span>
+                  <span>git diff --cached -- .signal-scout</span>
+                </code>
+              </pre>
+            </section>
           </div>
 
           <aside className="demo-callout" aria-labelledby="demo-callout-title">

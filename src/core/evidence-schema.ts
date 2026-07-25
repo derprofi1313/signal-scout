@@ -9,6 +9,7 @@ import {
   type EvidencePacket,
   type Priority,
 } from "./types";
+import { classifyFragment } from "./classify";
 import { sha256 } from "./packet";
 
 const EVIDENCE_STATUSES = ["baseline", "no_change", "changed", "failed"] as const;
@@ -244,6 +245,36 @@ export const evidencePacketSchema: z.ZodType<EvidencePacket> = packetShapeSchema
     if (expectedPacketId && packet.id !== expectedPacketId) {
       issue(["id"], "Packet id must match the source and evidence hash");
     }
+
+    packet.changes.forEach((change, index) => {
+      const expected = classifyFragment(
+        {
+          before: change.before,
+          after: change.after,
+          beforeStart: change.beforeStart,
+          afterStart: change.afterStart,
+          ...(change.context ? { context: change.context } : {}),
+          ...(change.limitations ? { limitations: change.limitations } : {}),
+        },
+        packet.source.kind,
+      );
+
+      if (change.category !== expected.category) {
+        issue(["changes", index, "category"], "Category must match deterministic classification");
+      }
+      if (change.priority !== expected.priority) {
+        issue(["changes", index, "priority"], "Priority must match deterministic classification");
+      }
+      if (change.score !== expected.score) {
+        issue(["changes", index, "score"], "Score must match deterministic classification");
+      }
+      if (
+        change.reasons.length !== expected.reasons.length ||
+        change.reasons.some((reason, reasonIndex) => reason !== expected.reasons[reasonIndex])
+      ) {
+        issue(["changes", index, "reasons"], "Reasons must match deterministic classification");
+      }
+    });
 
     for (let index = 1; index < packet.changes.length; index += 1) {
       const previous = packet.changes[index - 1]!;

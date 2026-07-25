@@ -1,0 +1,42 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.5/schema.json",
+  "files": {
+    "includes": [
+      "**",
+      "!!node_modules",
+      "!!.next",
+      "!!coverage",
+      "!!dist",
+      "!!out",
+      "!!build",
+      "!!playwright-report",
+      "!!test-results",
+      "!!tests/fixtures",
+      "!!next-env.d.ts",
+    ],
+  },
+  "formatter": {
+    "enabled": false,
+  },
+  "linter": {
+    "enabled": true,
+    "domains": {
+      "next": "recommended",
+      "react": "recommended",
+      "test": "recommended",
+    },
+    "rules": {
+      "preset": "recommended",
+      "complexity": {
+        "noImportantStyles": "off",
+      },
+      "style": {
+        "noDescendingSpecificity": "off",
+        "noNonNullAssertion": "off",
+      },
+    },
+  },
+  "assist": {
+    "enabled": false,
+  },
+}

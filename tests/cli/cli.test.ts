@@ -1,10 +1,11 @@
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { runCli } from "@/cli/index";
+import { isDirectCliEntry, runCli } from "@/cli/index";
 import { parseConfig } from "@/core/config";
 import { CaptureError } from "@/core/fetch";
 import type { CliIo, FetchResult, SignalScoutSource } from "@/core/types";
@@ -101,6 +102,18 @@ function capture(body: string, source: SignalScoutSource): FetchResult {
 }
 
 describe("Signal Scout CLI", () => {
+  it("recognizes an installed package-bin symlink as the direct entry", async () => {
+    const directory = await temporaryDirectory();
+    const modulePath = fileURLToPath(new URL("../../src/cli/index.ts", import.meta.url));
+    const binPath = join(directory, "signal-scout");
+    await symlink(modulePath, binPath);
+
+    expect(isDirectCliEntry(binPath, pathToFileURL(modulePath).href)).toBe(true);
+    expect(isDirectCliEntry(join(directory, "missing"), pathToFileURL(modulePath).href)).toBe(
+      false,
+    );
+  });
+
   it("initializes a valid starter config without overwriting an existing file", async () => {
     const directory = await temporaryDirectory();
     const firstIo = io(directory);
@@ -206,6 +219,30 @@ describe("Signal Scout CLI", () => {
       schema: "signal-scout/evidence@1",
       status: "failed",
     });
+  });
+
+  it("neutralizes terminal controls and raw HTML at the Markdown report boundary", async () => {
+    const directory = await temporaryDirectory();
+    const packetPath = join(directory, "unsafe-packet.json");
+    const unsafePacket = structuredClone(demoPacket);
+    unsafePacket.source.name = "<script>alert(1)</script>\u001b]52;c;clipboard\u0007";
+    unsafePacket.changes[0]!.before[0] += "\u001b]52;c;clipboard\u0007";
+    unsafePacket.changes[0]!.after[0] += "\u009b31m";
+    unsafePacket.limitations[0] = "<img src=x onerror=alert(1)>\u202e";
+    await writeFile(packetPath, JSON.stringify(unsafePacket), "utf8");
+    const commandIo = io(directory);
+
+    expect(await runCli(["report", packetPath, "--format", "markdown"], commandIo.value)).toBe(0);
+    for (const unsafeCharacter of ["\u0007", "\u001b", "\u009b", "\u202e"]) {
+      expect(commandIo.stdout()).not.toContain(unsafeCharacter);
+    }
+    expect(commandIo.stdout()).not.toContain("<script>");
+    expect(commandIo.stdout()).not.toContain("<img");
+    expect(commandIo.stdout()).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+    expect(commandIo.stdout()).toContain("&lt;img src=x onerror=alert(1)&gt;");
+    expect(commandIo.stdout()).toContain("\\u001b]52;c;clipboard\\u0007");
+    expect(commandIo.stdout()).toContain("\\u009b31m");
+    expect(commandIo.stdout()).toContain("\\u202e");
   });
 
   it("accepts the complete synthetic fixture at the report boundary", async () => {

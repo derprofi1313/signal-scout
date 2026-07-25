@@ -5,7 +5,7 @@ contract, local CLI, inspectable demo, documentation, or verification.
 
 ## Before you start
 
-- Use Node.js 24 or newer and pnpm 11 or newer.
+- Use Node.js 24 or newer and pnpm 11.6.0.
 - Read [`docs/architecture.md`](docs/architecture.md) and
   [`docs/trust-model.md`](docs/trust-model.md).
 - Search existing issues before proposing overlapping work.
@@ -16,13 +16,15 @@ contract, local CLI, inspectable demo, documentation, or verification.
 ## Set up the repository
 
 ```bash
-corepack enable
+npm install --global pnpm@11.6.0
 pnpm install --frozen-lockfile
 pnpm exec playwright install chromium
 ```
 
 Start the website with `pnpm dev`. Exercise the checked-out CLI with
 `pnpm cli --help`; do not rely on a globally installed or published package.
+Installing the pinned pnpm version explicitly keeps setup working on Node.js
+releases that do not bundle Corepack.
 
 ## Make a change
 
@@ -67,6 +69,7 @@ pnpm lint
 pnpm typecheck
 pnpm test
 pnpm test:coverage
+pnpm audit
 pnpm build
 pnpm build:cli
 ```
