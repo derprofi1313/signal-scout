@@ -96,8 +96,9 @@ describe("Markdown evidence report", () => {
     expect(markdown).toContain("**Status:** `changed`");
     expect(markdown).toContain("**Priority:** High (90/100)");
     expect(markdown).toContain("**Reason:** Published price changed");
-    expect(markdown).toContain("```text\n$29 per workspace / month\ndrop \\`\\`\\` fence\n```");
-    expect(markdown).toContain("```text\n$39 per workspace / month\n```");
+    expect(markdown).toContain("#### Before\n\n    $29 per workspace / month\n    drop ``` fence");
+    expect(markdown).toContain("#### After\n\n    $39 per workspace / month");
+    expect(markdown).not.toContain("```text");
     expect(markdown).toContain("- Client-rendered content is not captured.");
     expect(markdown).toContain("This report is deterministic evidence, not strategic advice.");
   });

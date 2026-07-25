@@ -9,7 +9,7 @@ import { renderMarkdown } from "../core/report";
 import { scanSources } from "../core/scan";
 import type { CliIo, SignalScoutConfig } from "../core/types";
 
-const VERSION = "0.1.0";
+const VERSION = "0.1.1";
 const CONFIG_FILENAME = "signal-scout.config.json";
 const helpText = `Signal Scout ${VERSION}
 

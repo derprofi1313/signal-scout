@@ -11,8 +11,8 @@ the checked-out repository; it does not assume a published npm package or a
 hosted Signal Scout service.
 
 The package manifest is intentionally private to prevent accidental npm
-publication under the unscoped project name. The public v0.1.0 distribution is
-the GitHub source release.
+publication under the unscoped project name. Public distributions are GitHub
+source releases.
 
 ## Quick start
 

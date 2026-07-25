@@ -346,7 +346,7 @@ describe("Signal Scout CLI", () => {
     expect(helpIo.stderr()).toContain("scan");
     expect(helpIo.stderr()).toContain("report");
     expect(await runCli(["--version"], versionIo.value)).toBe(0);
-    expect(versionIo.stderr()).toContain("0.1.0");
+    expect(versionIo.stderr()).toContain("0.1.1");
   });
 
   it("supports empty, named, and short help and version routes", async () => {
@@ -360,7 +360,7 @@ describe("Signal Scout CLI", () => {
 
     const versionIo = io(directory);
     expect(await runCli(["-v"], versionIo.value)).toBe(0);
-    expect(versionIo.stderr()).toBe("0.1.0\n");
+    expect(versionIo.stderr()).toBe("0.1.1\n");
   });
 
   it("rejects an unknown command with a direct help route", async () => {

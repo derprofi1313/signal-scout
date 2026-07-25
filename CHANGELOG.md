@@ -8,6 +8,13 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 No changes yet.
 
+## [0.1.1] - 2026-07-25
+
+### Security
+
+- Render exact evidence as indented Markdown code blocks, eliminating the
+  remaining custom backtick-escaping path identified by CodeQL.
+
 ## [0.1.0] - 2026-07-25
 
 ### Added
@@ -23,5 +30,6 @@ No changes yet.
 No npm publication or hosted Signal Scout service is represented by this
 release.
 
-[Unreleased]: https://github.com/derprofi1313/signal-scout/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/derprofi1313/signal-scout/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/derprofi1313/signal-scout/releases/tag/v0.1.1
 [0.1.0]: https://github.com/derprofi1313/signal-scout/releases/tag/v0.1.0

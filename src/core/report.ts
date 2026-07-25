@@ -28,7 +28,7 @@ function escapeLinkDestination(value: string): string {
 }
 
 function escapeEvidenceLine(value: string): string {
-  return value.replace(unsafeRenderedCharacterPattern, visibleCharacterEscape).replace(/`/g, "\\`");
+  return value.replace(unsafeRenderedCharacterPattern, visibleCharacterEscape);
 }
 
 function titleCase(value: string): string {
@@ -44,8 +44,9 @@ function hashValue(value: string | undefined): string {
 }
 
 function evidenceBlock(lines: readonly string[]): string {
-  const content = lines.length > 0 ? lines.map(escapeEvidenceLine).join("\n") : "(none)";
-  return `\`\`\`text\n${content}\n\`\`\``;
+  return lines.length > 0
+    ? lines.map((line) => `    ${escapeEvidenceLine(line)}`).join("\n")
+    : "    (none)";
 }
 
 function renderChange(change: ClassifiedChange, index: number): string {
