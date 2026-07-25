@@ -1,0 +1,62 @@
+name: Signal Scout scan
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Capture public sources
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.6.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Run `pnpm cli init`, replace the example URL in the generated root
+      # configuration, and review that file before enabling this schedule.
+      - name: Restore the previous baseline
+        uses: actions/cache/restore@v4
+        with:
+          path: .signal-scout/baselines
+          key: signal-scout-baselines-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            signal-scout-baselines-
+
+      - name: Scan with the checked-out CLI
+        run: pnpm cli scan
+
+      - name: Save the current baseline
+        if: ${{ always() }}
+        uses: actions/cache/save@v4
+        with:
+          path: .signal-scout/baselines
+          key: signal-scout-baselines-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Upload evidence reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: signal-scout-evidence-${{ github.run_number }}-${{ github.run_attempt }}
+          path: .signal-scout/reports
+          if-no-files-found: warn
+          retention-days: 30

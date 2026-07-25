@@ -1,0 +1,14 @@
+{
+  "$schema": "../signal-scout.schema.json",
+  "version": 1,
+  "storageDir": ".signal-scout",
+  "sources": [
+    {
+      "id": "example-pricing",
+      "name": "Replace with your public pricing page",
+      "url": "https://example.com/pricing",
+      "kind": "pricing",
+      "ignoreSelectors": [".cookie-banner", "[data-volatile]"]
+    }
+  ]
+}

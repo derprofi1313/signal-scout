@@ -1,0 +1,196 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1280"
+  height="420"
+  viewBox="0 0 1280 420"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">Signal Scout evidence desk</title>
+  <desc id="description">
+    Signal Scout connects a public source to its normalized hash, exact price
+    diff, and deterministic priority reason.
+  </desc>
+
+  <rect width="1280" height="420" fill="#EDF3F6" />
+  <rect x="0" y="0" width="16" height="420" fill="#2457D6" />
+  <path d="M16 36H1264" stroke="#B8C7CE" stroke-width="2" />
+  <path d="M16 384H1264" stroke="#B8C7CE" stroke-width="2" />
+
+  <g aria-hidden="true">
+    <rect x="64" y="70" width="14" height="14" rx="2" fill="#2457D6" />
+    <rect x="86" y="70" width="14" height="14" rx="2" fill="#087C6A" />
+    <path d="M78 77H86" stroke="#10232D" stroke-width="2" />
+  </g>
+
+  <text
+    x="114"
+    y="82"
+    fill="#10232D"
+    font-family="'IBM Plex Mono', ui-monospace, monospace"
+    font-size="16"
+    font-weight="700"
+    letter-spacing="2"
+  >
+    SIGNAL SCOUT / EVIDENCE CI
+  </text>
+
+  <text
+    x="64"
+    y="165"
+    fill="#10232D"
+    font-family="Chivo, 'Arial Narrow', sans-serif"
+    font-size="62"
+    font-weight="800"
+    letter-spacing="-2"
+  >
+    Markets move.
+  </text>
+  <text
+    x="64"
+    y="229"
+    fill="#10232D"
+    font-family="Chivo, 'Arial Narrow', sans-serif"
+    font-size="62"
+    font-weight="800"
+    letter-spacing="-2"
+  >
+    Evidence holds.
+  </text>
+  <text
+    x="67"
+    y="278"
+    fill="#10232D"
+    font-family="'Public Sans', Arial, sans-serif"
+    font-size="20"
+  >
+    Exact fragments. SHA-256 hashes. Explainable priority.
+  </text>
+
+  <g transform="translate(64 316)">
+    <rect width="238" height="42" rx="4" fill="#2457D6" />
+    <text
+      x="20"
+      y="27"
+      fill="#EDF3F6"
+      font-family="'IBM Plex Mono', ui-monospace, monospace"
+      font-size="14"
+      font-weight="700"
+    >
+      signal-scout/evidence@1
+    </text>
+  </g>
+
+  <g transform="translate(660 58)">
+    <rect width="556" height="304" rx="8" fill="#10232D" />
+    <text
+      x="28"
+      y="36"
+      fill="#B8C7CE"
+      font-family="'IBM Plex Mono', ui-monospace, monospace"
+      font-size="12"
+      font-weight="700"
+      letter-spacing="1.4"
+    >
+      SYNTHETIC FIXTURE / CHAIN OF EVIDENCE
+    </text>
+
+    <path d="M48 82H508" stroke="#B8C7CE" stroke-width="2" />
+    <g font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="11" font-weight="700">
+      <rect x="42" y="76" width="12" height="12" rx="2" fill="#2457D6" />
+      <text x="28" y="110" fill="#EDF3F6">SOURCE</text>
+
+      <rect x="194" y="76" width="12" height="12" rx="2" fill="#087C6A" />
+      <text x="183" y="110" fill="#EDF3F6">HASH</text>
+
+      <rect x="347" y="76" width="12" height="12" rx="2" fill="#C84B31" />
+      <text x="340" y="110" fill="#EDF3F6">DIFF</text>
+
+      <rect x="502" y="76" width="12" height="12" rx="2" fill="#2457D6" />
+      <text x="484" y="110" fill="#EDF3F6">REASON</text>
+    </g>
+
+    <rect x="28" y="130" width="500" height="58" rx="3" fill="#EDF3F6" />
+    <text
+      x="44"
+      y="153"
+      fill="#10232D"
+      font-family="'IBM Plex Mono', ui-monospace, monospace"
+      font-size="11"
+      font-weight="700"
+    >
+      https://fixture.invalid/pricing
+    </text>
+    <text
+      x="44"
+      y="174"
+      fill="#087C6A"
+      font-family="'IBM Plex Mono', ui-monospace, monospace"
+      font-size="11"
+    >
+      SHA-256 7b2a…f091 → 0e61…aa34
+    </text>
+
+    <g transform="translate(28 202)">
+      <rect width="240" height="52" rx="3" fill="#EDF3F6" />
+      <rect width="5" height="52" fill="#C84B31" />
+      <text
+        x="20"
+        y="20"
+        fill="#10232D"
+        font-family="'IBM Plex Mono', ui-monospace, monospace"
+        font-size="10"
+        font-weight="700"
+      >
+        − BEFORE
+      </text>
+      <text
+        x="20"
+        y="40"
+        fill="#10232D"
+        font-family="'IBM Plex Mono', ui-monospace, monospace"
+        font-size="14"
+      >
+        $29 / workspace
+      </text>
+    </g>
+
+    <g transform="translate(288 202)">
+      <rect width="240" height="52" rx="3" fill="#EDF3F6" />
+      <rect width="5" height="52" fill="#087C6A" />
+      <text
+        x="20"
+        y="20"
+        fill="#087C6A"
+        font-family="'IBM Plex Mono', ui-monospace, monospace"
+        font-size="10"
+        font-weight="700"
+      >
+        + AFTER
+      </text>
+      <text
+        x="20"
+        y="40"
+        fill="#10232D"
+        font-family="'IBM Plex Mono', ui-monospace, monospace"
+        font-size="14"
+      >
+        $39 / workspace
+      </text>
+    </g>
+
+    <rect x="28" y="268" width="500" height="18" rx="2" fill="#EDF3F6" />
+    <rect x="28" y="268" width="5" height="18" fill="#C84B31" />
+    <text
+      x="40"
+      y="281"
+      fill="#10232D"
+      font-family="'IBM Plex Mono', ui-monospace, monospace"
+      font-size="10"
+      font-weight="700"
+      letter-spacing=".6"
+    >
+      HIGH / PUBLISHED PRICE CHANGED / SCORE 90
+    </text>
+  </g>
+</svg>

@@ -38,7 +38,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && pnpm build:cli",
-    "build:cli": "tsup src/cli/index.ts --format esm --dts --clean --banner.js '#!/usr/bin/env node'",
+    "build:cli": "tsup",
     "cli": "tsx src/cli/index.ts",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",

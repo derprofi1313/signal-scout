@@ -230,17 +230,19 @@ it("rejects embedded credentials and duplicate source ids", () => {
   const result = safeParseConfig({
     version: 1,
     sources: [
-      { id: "pricing", name: "Pricing", url: "https://user:pass@example.com/pricing", kind: "pricing" },
-      { id: "pricing", name: "Pricing 2", url: "https://example.org/pricing", kind: "pricing" }
-    ]
+      {
+        id: "pricing",
+        name: "Pricing",
+        url: "https://user:pass@example.com/pricing",
+        kind: "pricing",
+      },
+      { id: "pricing", name: "Pricing 2", url: "https://example.org/pricing", kind: "pricing" },
+    ],
   });
 
   expect(result.ok).toBe(false);
   if (!result.ok) {
-    expect(result.issues.map((issue) => issue.path)).toEqual([
-      "sources.0.url",
-      "sources.1.id"
-    ]);
+    expect(result.issues.map((issue) => issue.path)).toEqual(["sources.0.url", "sources.1.id"]);
   }
 });
 ```
@@ -263,7 +265,7 @@ expect(result.lines).toEqual([
   "Launch",
   "$29 per workspace / month",
   "5 projects",
-  "Email support"
+  "Email support",
 ]);
 expect(result.canonicalUrl).toBe("https://fixture.invalid/pricing");
 expect(result.limitations).toEqual([]);

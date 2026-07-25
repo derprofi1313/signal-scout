@@ -1,0 +1,90 @@
+name: Bug report
+description: Report a reproducible problem in Signal Scout.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for a focused report. Remove credentials, private page content,
+        and personal data before submitting. Report security issues through
+        [GitHub private vulnerability reporting](https://github.com/derprofi1313/signal-scout/security/advisories/new)
+        instead.
+
+  - type: input
+    id: revision
+    attributes:
+      label: Version or revision
+      description: Package version, tag, or commit SHA where you observed the problem.
+      placeholder: "0.1.0 or a commit SHA"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include operating system, Node.js version, and pnpm version.
+      placeholder: "macOS 15, Node.js 24.x, pnpm 11.x"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - CLI
+        - Capture and storage
+        - Normalization and diff
+        - Classification and reports
+        - Website and demo
+        - Documentation or automation
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: List the smallest commands and synthetic inputs needed to reproduce the problem.
+      placeholder: |
+        1. Create this synthetic configuration…
+        2. Run `pnpm cli scan`…
+        3. Observe…
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include sanitized output and the exit code.
+    validations:
+      required: true
+
+  - type: textarea
+    id: limitations
+    attributes:
+      label: Evidence and limitations
+      description: Note relevant packet limitations, hashes, or fixture files without private content.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: I removed secrets, credentials, personal data, and private captured content.
+          required: true
+        - label: This is not an undisclosed security vulnerability.
+          required: true
+        - label: I searched existing issues for the same behavior.
+          required: true

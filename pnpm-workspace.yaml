@@ -3,6 +3,6 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 minimumReleaseAgeExclude:
-  - '@playwright/test@1.62.0'
+  - "@playwright/test@1.62.0"
   - playwright-core@1.62.0
   - playwright@1.62.0

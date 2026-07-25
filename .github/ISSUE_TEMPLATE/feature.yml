@@ -1,0 +1,68 @@
+name: Feature request
+description: Propose a focused improvement to the evidence workflow.
+title: "feature: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Signal Scout keeps deterministic evidence useful without credentials or
+        hosted services. Describe the review problem before the proposed implementation.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Review problem
+      description: What evidence task is difficult today, and for whom?
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe observable behavior, not a product claim.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Narrow proposal
+      description: Explain the smallest change that would address the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence_contract
+    attributes:
+      label: Evidence-contract impact
+      description: Note schema, determinism, hashes, storage, reports, or compatibility implications.
+    validations:
+      required: true
+
+  - type: textarea
+    id: security
+    attributes:
+      label: Security and trust boundary
+      description: Note new network, credential, data-retention, or authorization concerns.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: The proposal does not require authenticated scraping or bypass access controls.
+          required: true
+        - label: The deterministic evidence path remains useful without an AI provider.
+          required: true
+        - label: I searched existing issues for overlapping proposals.
+          required: true

@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-25  
 **Status:** Approved by delegated execution authority  
-**Owner:** Jannik Agethen  
+**Owner:** Jannik Agethen
 
 ## Product decision
 

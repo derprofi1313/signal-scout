@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/derprofi1313/signal-scout/main/signal-scout.schema.json",
+  "title": "Signal Scout configuration",
+  "description": "Public source configuration for deterministic Signal Scout evidence scans.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "sources"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048
+    },
+    "version": {
+      "const": 1
+    },
+    "storageDir": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "default": ".signal-scout"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "url", "kind"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "maxLength": 2048,
+          "pattern": "^https?://(?![^/?#]*@)",
+          "description": "A public HTTP(S) URL without embedded credentials. Runtime validation also rejects local and private literal hosts."
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["pricing", "changelog", "product", "positioning", "policy", "general"]
+        },
+        "ignoreSelectors": {
+          "type": "array",
+          "maxItems": 20,
+          "default": [],
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        }
+      }
+    }
+  }
+}
