@@ -81,7 +81,7 @@ Every evidence packet must:
 - include raw and normalized SHA-256 hashes;
 - preserve exact changed fragments from both captures;
 - disclose truncation, fetch, parse, or classification limitations;
-- distinguish `no_change`, `changed`, and `failed`;
+- distinguish `baseline`, `no_change`, `changed`, and `failed`;
 - use deterministic categories and priority reasons;
 - label fixture data as synthetic;
 - remain readable without the web application.
