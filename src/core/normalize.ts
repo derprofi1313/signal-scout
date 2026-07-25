@@ -22,7 +22,11 @@ function resolveCanonicalUrl(
 
   try {
     const canonical = new URL(href, sourceUrl);
-    if (canonical.protocol !== "http:" && canonical.protocol !== "https:") {
+    if (
+      (canonical.protocol !== "http:" && canonical.protocol !== "https:") ||
+      canonical.username ||
+      canonical.password
+    ) {
       throw new Error("unsupported protocol");
     }
     return canonical.href;

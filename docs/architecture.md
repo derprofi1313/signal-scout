@@ -76,10 +76,18 @@ regardless of the invoking shell's current directory.
 
 ## Capture and normalization
 
-Capture follows redirects, sends an identifying Signal Scout user agent, times
-out after 15 seconds, and accepts no more than 2 MiB. Accepted response types are
-HTML, XHTML, and plain text. One failed source does not discard packets written
-for successful sources.
+Capture resolves every initial and redirected host, rejects non-public or
+reserved IPv4/IPv6 results, and pins one validated address into the actual
+HTTP(S) socket while preserving the hostname for the Host header and TLS. It
+follows at most five manually validated redirects, sends an identifying Signal
+Scout user agent, times out the whole operation after 15 seconds, and accepts no
+more than 2 MiB. Accepted response types are HTML, XHTML, and plain text. One
+failed source does not discard packets written for successful sources.
+
+The raw SHA-256 is computed over the exact response bytes before UTF-8 decoding.
+If decoding requires replacement characters, that fact becomes a packet
+limitation. A stored baseline whose requested URL no longer matches its source
+configuration is reset instead of being compared across URLs.
 
 Normalization removes non-content elements and configured ignore selectors,
 extracts ordered semantic text, collapses Unicode whitespace, and removes only

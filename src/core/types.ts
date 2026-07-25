@@ -1,3 +1,5 @@
+import type { LookupFunction } from "node:net";
+
 export const EVIDENCE_SCHEMA_ID = "signal-scout/evidence@1" as const;
 
 export const SOURCE_KINDS = [
@@ -92,6 +94,7 @@ export interface CaptureMetadata {
 
 export interface CapturedDocument {
   raw: string;
+  rawSha256?: string;
   normalized: NormalizedDocument;
   metadata: CaptureMetadata;
 }
@@ -160,8 +163,33 @@ export interface PacketInput {
 
 export interface FetchResult {
   body: string;
+  rawSha256?: string;
+  limitations?: string[];
   metadata: CaptureMetadata;
 }
+
+export interface ResolvedAddress {
+  address: string;
+  family: 4 | 6;
+}
+
+export type HostResolver = (hostname: string) => Promise<readonly ResolvedAddress[]>;
+
+export interface HopResponse {
+  statusCode: number;
+  statusMessage: string;
+  headers: Headers;
+  body: AsyncIterable<Uint8Array> | ReadableStream<Uint8Array> | null;
+  cancel: () => void | Promise<void>;
+}
+
+export interface PinnedRequestOptions {
+  signal: AbortSignal;
+  headers: Readonly<Record<string, string>>;
+  lookup: LookupFunction;
+}
+
+export type PinnedRequest = (url: URL, options: PinnedRequestOptions) => Promise<HopResponse>;
 
 export type SourceFetcher = (source: SignalScoutSource) => Promise<FetchResult>;
 

@@ -1,6 +1,7 @@
+import { parseEvidencePacket } from "@/core/evidence-schema";
 import { EVIDENCE_SCHEMA_ID, type EvidencePacket } from "@/core/types";
 
-export const demoPacket: EvidencePacket = {
+const demoPacketFixture: EvidencePacket = {
   schema: EVIDENCE_SCHEMA_ID,
   id: "demo-pricing-b0c26114676d",
   status: "changed",
@@ -92,3 +93,5 @@ export const demoPacket: EvidencePacket = {
     label: "Synthetic fixture",
   },
 };
+
+export const demoPacket = parseEvidencePacket(demoPacketFixture);

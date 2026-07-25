@@ -53,9 +53,13 @@ page. An overly broad ignore selector can hide a meaningful change.
 
 ### Network and remote source
 
-The captured response is untrusted input. Requests are bounded by timeout, body
-size, and accepted content type. The final redirected URL and canonical URL
-metadata are recorded for review. Signal Scout does not attest to DNS, hosting
+The captured response is untrusted input. Production capture resolves and
+validates every redirect hop, rejects non-public and reserved address ranges,
+and pins a validated address into the socket so a later DNS answer cannot
+silently change the destination for that connection. Requests are bounded by
+redirect count, timeout, body size, and accepted content type. The final
+redirected URL and canonical URL metadata are recorded for review. These
+controls reduce server-side request-forgery risk; they do not attest to hosting
 ownership, publisher identity, or the completeness of a response.
 
 ### Local machine
@@ -84,6 +88,10 @@ the packet contract, not proof that a live scan ran. The `.invalid` URL and
 - Client-side JavaScript is not executed, so rendered-only content may be
   absent.
 - Requests time out after 15 seconds and accepted bodies are limited to 2 MiB.
+- Redirects are limited to five and each destination is resolved, validated,
+  and pinned independently.
+- Raw hashes cover response bytes before decoding. Invalid UTF-8 is decoded
+  with replacement characters and disclosed as a limitation.
 - Normalization extracts selected semantic elements and stops at 800 lines.
 - Diff comparison is bounded to 400 × 400 lines.
 - Cookie banners, navigation, timestamps, A/B tests, localization, and

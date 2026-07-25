@@ -6,7 +6,7 @@
 
 **Architecture:** A framework-independent TypeScript core performs guarded capture, normalization, diffing, classification, hashing, storage, and report rendering. A thin CLI invokes that core. A Next.js 16 App Router site consumes the same versioned evidence type to render a polished static demo without credentials or runtime data services.
 
-**Tech Stack:** Node.js 24, pnpm 11, Next.js 16.2.11, React 19.2.8, TypeScript, Zod 4.4.3, Cheerio 1.2.0, Vitest 4.1.10, Playwright 1.62.0, axe-core 4.12.1, tsx 4.23.1, tsup 8.5.1, CSS Modules/global CSS, GitHub Actions.
+**Tech Stack:** Node.js 24, pnpm 11, Next.js 16.2.11, React 19.2.4, TypeScript, Zod 4.4.3, Cheerio 1.2.0, Vitest 4.1.10, Playwright 1.62.0, axe-core 4.12.1, tsx 4.23.1, tsup 8.5.1, CSS Modules/global CSS, GitHub Actions.
 
 ## Global Constraints
 

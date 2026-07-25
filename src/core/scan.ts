@@ -42,27 +42,50 @@ export async function scanSources(
 
   for (const source of config.sources) {
     try {
-      const previous = await readBaseline(root, source.id);
+      const storedPrevious = await readBaseline(root, source.id);
+      const baselineUrlChanged =
+        storedPrevious !== null && storedPrevious.metadata.requestedUrl !== source.url;
+      const previous = baselineUrlChanged ? null : storedPrevious;
       const fetched = await fetcher(source);
+      if (fetched.metadata.requestedUrl !== source.url) {
+        throw new Error("Fetcher returned metadata for a different requested URL");
+      }
+      const normalized =
+        fetched.metadata.contentType === "text/plain"
+          ? normalizeText(fetched.body, {
+              sourceUrl: fetched.metadata.finalUrl || source.url,
+            })
+          : normalizeHtml(fetched.body, {
+              sourceUrl: fetched.metadata.finalUrl || source.url,
+              ignoreSelectors: source.ignoreSelectors,
+            });
       const current: CapturedDocument = {
         raw: fetched.body,
+        ...(fetched.rawSha256 ? { rawSha256: fetched.rawSha256 } : {}),
         metadata: fetched.metadata,
-        normalized:
-          fetched.metadata.contentType === "text/plain"
-            ? normalizeText(fetched.body, {
-                sourceUrl: fetched.metadata.finalUrl || source.url,
-              })
-            : normalizeHtml(fetched.body, {
-                sourceUrl: fetched.metadata.finalUrl || source.url,
-                ignoreSelectors: source.ignoreSelectors,
-              }),
+        normalized: {
+          ...normalized,
+          limitations: [...normalized.limitations, ...(fetched.limitations ?? [])],
+        },
       };
       const fragments =
         previous && previous.normalized.lines.join("\n") !== current.normalized.lines.join("\n")
           ? diffLines(previous.normalized.lines, current.normalized.lines)
           : [];
       const changes = fragments.map((fragment) => classifyFragment(fragment, source.kind));
-      const packet = buildEvidencePacket({ source, previous, current, changes });
+      const packet = buildEvidencePacket({
+        source,
+        previous,
+        current,
+        changes,
+        ...(baselineUrlChanged
+          ? {
+              limitations: [
+                "Stored baseline was reset because its requested URL no longer matches the configured source URL.",
+              ],
+            }
+          : {}),
+      });
 
       await writeEvidencePacket(root, packet);
       await writeMarkdownReport(root, source.id, renderMarkdown(packet));
@@ -75,9 +98,23 @@ export async function scanSources(
         capturedAt: now().toISOString(),
         error: evidenceError(error),
       });
-      await writeEvidencePacket(root, packet);
-      await writeMarkdownReport(root, source.id, renderMarkdown(packet));
       packets.push(packet);
+
+      try {
+        await writeEvidencePacket(root, packet);
+      } catch (storageError) {
+        packet.limitations.push(
+          `Failed to persist the failed evidence packet: ${evidenceError(storageError).message}`,
+        );
+      }
+
+      try {
+        await writeMarkdownReport(root, source.id, renderMarkdown(packet));
+      } catch (storageError) {
+        packet.limitations.push(
+          `Failed to persist the failed Markdown report: ${evidenceError(storageError).message}`,
+        );
+      }
     }
   }
 

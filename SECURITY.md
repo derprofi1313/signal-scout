@@ -45,10 +45,12 @@ retention, and review of generated artifacts.
 
 ## Security properties and limits
 
-Requests have a 15-second timeout, a 2 MiB accepted-body limit, and restricted
-HTML/text content types. Configuration rejects embedded URL credentials, local
-hostnames, and private literal IP addresses. Successful source results are
-retained when another source fails.
+Requests have a 15-second whole-operation timeout, a five-redirect limit, a
+2 MiB accepted-body limit, and restricted HTML/text content types. Every
+production redirect hop is DNS-resolved, checked against non-public and
+reserved IPv4/IPv6 ranges, and connected through a pinned validated address.
+Configuration rejects embedded URL credentials. Successful source results are
+retained when another source or failed-report write fails.
 
 Those guards do not make remote content trustworthy. SHA-256 detects content
 changes relative to a known hash; it is not a digital signature, origin proof,

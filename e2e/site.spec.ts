@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { demoPacket } from "@/data/demo-packet";
 
 test("makes the evidence chain inspectable", async ({ page }) => {
   await page.goto("/");
@@ -26,6 +27,34 @@ test("makes the evidence chain inspectable", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByText("Showing 2 of 2 fixture changes.")).toBeAttached();
   await expect(page.getByText("Published price changed", { exact: true })).toBeVisible();
+});
+
+test("derives the landing specimen from the checked demo packet", async ({ page }) => {
+  const currentHash = demoPacket.hashes.current?.normalized;
+  const pricingChange = demoPacket.changes.find((change) => change.category === "pricing");
+  expect(currentHash).toBeTruthy();
+  expect(pricingChange).toBeTruthy();
+
+  await page.goto("/");
+
+  const chain = page.getByLabel("Chain of evidence");
+  await expect(
+    chain.getByText(`sha256: ${currentHash!.slice(0, 4)}…${currentHash!.slice(-4)}`, {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    chain.getByText(`${pricingChange!.before[0]} → ${pricingChange!.after[0]}`, {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    chain.getByText(
+      `${pricingChange!.priority[0]!.toUpperCase()}${pricingChange!.priority.slice(1)} · ${pricingChange!.category}`,
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(chain.getByText(pricingChange!.reasons[0]!, { exact: true })).toBeVisible();
 });
 
 test("operates the evidence filters from the keyboard", async ({ page }) => {

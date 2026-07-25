@@ -80,9 +80,11 @@ selectors for known volatile content. Allowed kinds are `pricing`, `changelog`,
 `product`, `positioning`, `policy`, and `general`. The runtime schema is
 [`signal-scout.schema.json`](signal-scout.schema.json).
 
-Signal Scout deliberately rejects URL credentials, local hostnames, and private
-literal IP addresses. It is for public pages, not authenticated scraping or
-bypassing access controls.
+Signal Scout is for public pages, not authenticated scraping or bypassing
+access controls. Before every production connection, including redirects, it
+resolves the target, rejects non-public and reserved IPv4/IPv6 addresses, and
+pins a validated address to the socket while retaining the hostname for HTTP
+and TLS. Redirects are revalidated hop by hop and stop after five hops.
 
 ## CLI
 
@@ -120,7 +122,7 @@ tool goes to stdout.
 Every packet uses the schema identifier `signal-scout/evidence@1` and records:
 
 - source identity, requested URL, canonical URL, and UTC capture metadata;
-- previous and current raw and normalized SHA-256 hashes;
+- previous and current raw-byte and normalized-text SHA-256 hashes;
 - `baseline`, `no_change`, `changed`, or `failed` status;
 - ordered before/after semantic fragments with deterministic positions;
 - deterministic category, score, `low`/`medium`/`high` priority, and literal
@@ -163,6 +165,8 @@ decision.
 - Capture supports public HTML, XHTML, and plain text over HTTP(S); it does not
   execute client-side JavaScript.
 - A request times out after 15 seconds and accepts at most 2 MiB.
+- Raw hashes cover the exact response bytes. Text is decoded as UTF-8; invalid
+  UTF-8 is replaced and disclosed in the packet before normalization.
 - Semantic extraction is capped at 800 lines. Diff comparison is bounded to
   400 × 400 lines; any truncation or comparison limit is disclosed.
 - Ignore selectors can reduce noise and can also hide a real change if they are

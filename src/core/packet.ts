@@ -21,7 +21,7 @@ export function sha256(value: string): string {
 
 export function hashCapture(capture: CapturedDocument): EvidenceHashes {
   return {
-    raw: sha256(capture.raw),
+    raw: capture.rawSha256 ?? sha256(capture.raw),
     normalized: sha256(capture.normalized.lines.join("\n")),
   };
 }

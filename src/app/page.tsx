@@ -1,31 +1,45 @@
 import Link from "next/link";
 import { ChainOfEvidence } from "@/components/chain-of-evidence";
+import { demoPacket } from "@/data/demo-packet";
+
+const heroChange = demoPacket.changes.find((change) => change.category === "pricing");
+const currentCapture = demoPacket.captures.current;
+const currentHashes = demoPacket.hashes.current;
+
+if (!heroChange?.before[0] || !heroChange.after[0] || !currentCapture || !currentHashes) {
+  throw new Error("The checked synthetic fixture must contain current pricing evidence.");
+}
+
+const sourceUrl = new URL(demoPacket.source.canonicalUrl);
+const captureDate = currentCapture.capturedAt.slice(0, 10);
+const captureTime = currentCapture.capturedAt.slice(11, 16);
+const priorityLabel = `${heroChange.priority.charAt(0).toUpperCase()}${heroChange.priority.slice(1)}`;
 
 const heroEvidence = [
   {
     label: "Source",
-    value: "fixture.invalid/pricing",
+    value: `${sourceUrl.hostname}${sourceUrl.pathname}`,
     detail: "Canonical public URL",
   },
   {
     label: "Capture",
-    value: "2026-07-25 · 09:12 UTC",
+    value: `${captureDate} · ${captureTime} UTC`,
     detail: "Bound to capture time",
   },
   {
     label: "Normalized",
-    value: "sha256: 95a1…fa09",
+    value: `sha256: ${currentHashes.normalized.slice(0, 4)}…${currentHashes.normalized.slice(-4)}`,
     detail: "Noise removed, hash retained",
   },
   {
     label: "Exact diff",
-    value: "$29 → $39",
+    value: `${heroChange.before[0]} → ${heroChange.after[0]}`,
     detail: "Source lines, not a summary",
   },
   {
     label: "Signal",
-    value: "High · pricing",
-    detail: "Published price changed",
+    value: `${priorityLabel} · ${heroChange.category}`,
+    detail: heroChange.reasons[0] ?? "Deterministic classification",
     tone: "change" as const,
   },
 ];

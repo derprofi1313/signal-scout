@@ -60,6 +60,18 @@ describe("HTML normalization", () => {
     expect(result.limitations).toEqual(['Ignore selector "[" could not be applied.']);
   });
 
+  it("rejects canonical metadata with embedded credentials", () => {
+    const result = normalizeHtml(
+      '<link rel="canonical" href="https://user:secret@example.com/pricing"><main><p>Evidence</p></main>',
+      { sourceUrl: "https://example.com/pricing" },
+    );
+
+    expect(result.canonicalUrl).toBe("https://example.com/pricing");
+    expect(result.limitations).toEqual([
+      "The page canonical URL was invalid; the requested URL was retained.",
+    ]);
+  });
+
   it("preserves semantic lines from an accepted plain-text source", () => {
     expect(
       normalizeText("Release 1.2\n\n  API\u00a0access added  \nAPI access added", {

@@ -1,8 +1,13 @@
 allowBuilds:
   esbuild: true
-  sharp: true
+  sharp: set this to true or false
   unrs-resolver: true
+overrides:
+  "postcss@<8.5.18": "8.5.23"
+  # The static site does not use next/image; omit Next's optional vulnerable optimizer.
+  "next@16.2.11>sharp": "-"
 minimumReleaseAgeExclude:
   - "@playwright/test@1.62.0"
   - playwright-core@1.62.0
   - playwright@1.62.0
+  - postcss@8.5.23

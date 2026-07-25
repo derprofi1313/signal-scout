@@ -8,12 +8,13 @@ import { runCli } from "@/cli/index";
 import { parseConfig } from "@/core/config";
 import { CaptureError } from "@/core/fetch";
 import type { CliIo, FetchResult, SignalScoutSource } from "@/core/types";
+import { demoPacket } from "@/data/demo-packet";
 
 const fixtureUrl = new URL("../fixtures/demo-before.html", import.meta.url);
 const temporaryDirectories: string[] = [];
 const storedPacket = {
   schema: "signal-scout/evidence@1",
-  id: "demo-failed-000000000000",
+  id: "demo-71448b5f86fb",
   status: "failed",
   capturedAt: "2026-07-25T12:00:00.000Z",
   source: {
@@ -120,6 +121,18 @@ describe("Signal Scout CLI", () => {
     );
   });
 
+  it("writes a stable, resolvable schema URL when initializing outside the repository", async () => {
+    const directory = await temporaryDirectory();
+    const commandIo = io(directory);
+
+    expect(await runCli(["init", "--dir", directory], commandIo.value)).toBe(0);
+    const content = JSON.parse(await readFile(join(directory, "signal-scout.config.json"), "utf8"));
+
+    expect(content.$schema).toBe(
+      "https://raw.githubusercontent.com/derprofi1313/signal-scout/v0.1.0/signal-scout.schema.json",
+    );
+  });
+
   it("maps a missing configuration to exit code 2 with a field-level recovery message", async () => {
     const directory = await temporaryDirectory();
     const commandIo = io(directory);
@@ -193,6 +206,97 @@ describe("Signal Scout CLI", () => {
       schema: "signal-scout/evidence@1",
       status: "failed",
     });
+  });
+
+  it("accepts the complete synthetic fixture at the report boundary", async () => {
+    const directory = await temporaryDirectory();
+    const packetPath = join(directory, "fixture.json");
+    await writeFile(packetPath, JSON.stringify(demoPacket), "utf8");
+    const commandIo = io(directory);
+
+    expect(await runCli(["report", packetPath, "--format", "json"], commandIo.value)).toBe(0);
+    expect(JSON.parse(commandIo.stdout())).toMatchObject({
+      schema: "signal-scout/evidence@1",
+      id: "demo-pricing-b0c26114676d",
+      fixture: { synthetic: true, label: "Synthetic fixture" },
+    });
+  });
+
+  it.each([
+    {
+      name: "a bogus status",
+      packet: { ...storedPacket, status: "complete" },
+    },
+    {
+      name: "a forged failed-packet identifier",
+      packet: { ...storedPacket, id: "demo-000000000000" },
+    },
+    {
+      name: "an invalid packet timestamp",
+      packet: { ...storedPacket, capturedAt: "25 July 2026" },
+    },
+    {
+      name: "an invalid nested source URL",
+      packet: {
+        ...storedPacket,
+        source: { ...storedPacket.source, canonicalUrl: "not a URL" },
+      },
+    },
+    {
+      name: "a shortened nested hash",
+      packet: {
+        ...demoPacket,
+        hashes: {
+          ...demoPacket.hashes,
+          current: {
+            ...demoPacket.hashes.current!,
+            normalized: "b0c26114676d",
+          },
+        },
+      },
+    },
+    {
+      name: "a nested summary missing a required category",
+      packet: {
+        ...demoPacket,
+        summary: {
+          ...demoPacket.summary,
+          categories: {
+            pricing: 1,
+            packaging: 0,
+            product: 1,
+            positioning: 0,
+            policy: 0,
+          },
+        },
+      },
+    },
+    {
+      name: "a summary total that disagrees with the changes",
+      packet: {
+        ...demoPacket,
+        summary: {
+          ...demoPacket.summary,
+          totalChanges: 3,
+        },
+      },
+    },
+    {
+      name: "a baseline status with previous evidence and changes",
+      packet: { ...demoPacket, status: "baseline" },
+    },
+  ])("rejects $name as invalid input rather than a runtime failure", async ({ packet }) => {
+    const directory = await temporaryDirectory();
+    const packetPath = join(directory, "invalid-packet.json");
+    await writeFile(packetPath, JSON.stringify(packet), "utf8");
+    const commandIo = io(directory);
+
+    expect(await runCli(["report", packetPath, "--format", "json"], commandIo.value)).toBe(2);
+    expect(commandIo.stdout()).toBe("");
+    expect(commandIo.stderr()).toContain(
+      "Evidence packet is not compatible with signal-scout/evidence@1",
+    );
+    expect(commandIo.stderr()).not.toContain("Signal Scout failed:");
   });
 
   it("lists commands in help and reports the package version", async () => {

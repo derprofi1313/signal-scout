@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/derprofi1313/signal-scout/main/signal-scout.schema.json",
+  "$id": "https://raw.githubusercontent.com/derprofi1313/signal-scout/v0.1.0/signal-scout.schema.json",
   "title": "Signal Scout configuration",
   "description": "Public source configuration for deterministic Signal Scout evidence scans.",
   "type": "object",

@@ -3,9 +3,10 @@ import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { safeParseConfig } from "../core/config";
+import { safeParseEvidencePacket } from "../core/evidence-schema";
 import { renderMarkdown } from "../core/report";
 import { scanSources } from "../core/scan";
-import type { CliIo, EvidencePacket, SignalScoutConfig } from "../core/types";
+import type { CliIo, SignalScoutConfig } from "../core/types";
 
 const VERSION = "0.1.0";
 const CONFIG_FILENAME = "signal-scout.config.json";
@@ -27,7 +28,8 @@ Options:
 `;
 
 const starterConfig: SignalScoutConfig = {
-  $schema: "./signal-scout.schema.json",
+  $schema:
+    "https://raw.githubusercontent.com/derprofi1313/signal-scout/v0.1.0/signal-scout.schema.json",
   version: 1,
   storageDir: ".signal-scout",
   sources: [
@@ -75,29 +77,6 @@ function option(
 
 function configIssuePath(path: string): string {
   return path || "<root>";
-}
-
-function isEvidencePacket(value: unknown): value is EvidencePacket {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-  const packet = value as Partial<EvidencePacket>;
-  return (
-    packet.schema === "signal-scout/evidence@1" &&
-    typeof packet.id === "string" &&
-    typeof packet.status === "string" &&
-    typeof packet.capturedAt === "string" &&
-    !!packet.source &&
-    typeof packet.source === "object" &&
-    !!packet.captures &&
-    typeof packet.captures === "object" &&
-    !!packet.hashes &&
-    typeof packet.hashes === "object" &&
-    Array.isArray(packet.changes) &&
-    !!packet.summary &&
-    typeof packet.summary === "object" &&
-    Array.isArray(packet.limitations)
-  );
 }
 
 async function initCommand(args: readonly string[], io: CliIo, cwd: string): Promise<number> {
@@ -229,18 +208,24 @@ async function reportCommand(args: readonly string[], io: CliIo, cwd: string): P
     writeLine(io.stderr, `${prefix}: ${packetPath}`);
     return 2;
   }
-  if (!isEvidencePacket(input)) {
+  const parsedPacket = safeParseEvidencePacket(input);
+  if (!parsedPacket.success) {
     writeLine(
       io.stderr,
       `Evidence packet is not compatible with signal-scout/evidence@1: ${packetPath}`,
     );
+    for (const issue of parsedPacket.error.issues) {
+      const path = issue.path.map(String).join(".");
+      writeLine(io.stderr, `- ${configIssuePath(path)}: ${issue.message}`);
+    }
     return 2;
   }
+  const packet = parsedPacket.data;
 
   const output =
     (formatOption.value ?? "markdown") === "json"
-      ? `${JSON.stringify(input, null, 2)}\n`
-      : renderMarkdown(input);
+      ? `${JSON.stringify(packet, null, 2)}\n`
+      : renderMarkdown(packet);
   io.stdout(output.endsWith("\n") ? output : `${output}\n`);
   return 0;
 }
