@@ -11,6 +11,7 @@ import type { CliIo, FetchResult, SignalScoutSource } from "@/core/types";
 const fixtureBeforeUrl = new URL("../fixtures/demo-before.html", import.meta.url);
 const fixtureAfterUrl = new URL("../fixtures/demo-after.html", import.meta.url);
 const temporaryDirectories: string[] = [];
+const INVISIBLE_TEXT_BREAK = "&#8203;";
 const demoSource: SignalScoutSource = {
   id: "demo-pricing",
   name: "Demo pricing fixture",
@@ -57,6 +58,10 @@ function actionEnv(overrides: Partial<NodeJS.ProcessEnv> = {}): NodeJS.ProcessEn
   return { NODE_ENV: "test", ...overrides };
 }
 
+function withoutInvisibleTextBreaks(value: string): string {
+  return value.replaceAll(INVISIBLE_TEXT_BREAK, "");
+}
+
 afterEach(async () => {
   await Promise.all(
     temporaryDirectories
@@ -95,7 +100,7 @@ describe("GitHub Action runner", () => {
     expect(output).toContain("baseline-count=1\n");
     expect(output).toContain("has-changes=false\n");
 
-    const summary = await readFile(summaryPath, "utf8");
+    const summary = withoutInvisibleTextBreaks(await readFile(summaryPath, "utf8"));
     expect(summary).toContain("| Demo pricing fixture | baseline | 0 | none |");
     expect(summary).not.toContain("$29 per workspace / month");
   });
@@ -146,9 +151,8 @@ describe("GitHub Action runner", () => {
     await expect(readFile(baselineOutputPath, "utf8")).resolves.toContain("has-changes=false\n");
     await expect(readFile(changedOutputPath, "utf8")).resolves.toContain("changed-count=1\n");
     await expect(readFile(changedOutputPath, "utf8")).resolves.toContain("has-changes=true\n");
-    await expect(readFile(changedSummaryPath, "utf8")).resolves.toContain(
-      "| Demo pricing fixture | changed |",
-    );
+    const changedSummary = withoutInvisibleTextBreaks(await readFile(changedSummaryPath, "utf8"));
+    expect(changedSummary).toContain("| Demo pricing fixture | changed |");
     expect(diagnostics).toContain("Changes were detected");
   });
 
@@ -206,7 +210,7 @@ describe("GitHub Action runner", () => {
     const output = await readFile(outputPath, "utf8");
     expect(output).toContain("changed-count=1\n");
     expect(output).toContain("failed-count=1\n");
-    const summary = await readFile(summaryPath, "utf8");
+    const summary = withoutInvisibleTextBreaks(await readFile(summaryPath, "utf8"));
     expect(summary).toContain("| Demo pricing fixture | changed |");
     expect(summary).toContain("| Broken page | failed |");
     expect(diagnostics.indexOf("1 source failed")).toBeGreaterThanOrEqual(0);

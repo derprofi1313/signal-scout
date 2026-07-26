@@ -23,6 +23,7 @@ const ACTION_SUMMARY_MAX_BYTES = 900 * 1024;
 const MAX_SOURCE_NAME_BYTES = 1_900;
 const MAX_METADATA_CELL_BYTES = 500;
 const TRUNCATION_MARKER = "…";
+const INVISIBLE_TEXT_BREAK = "&#8203;";
 const omissionNoticeSuffix = " source rows were omitted to keep this summary bounded.";
 
 function highestPacketPriority(packet: EvidencePacket): HighestPriority {
@@ -93,41 +94,51 @@ function visibleCharacterEscape(value: string): string {
   return codePoint === undefined ? "" : `\\u${codePoint.toString(16).padStart(4, "0")}`;
 }
 
-function escapeTableCell(value: string): string {
-  return value
-    .replace(unsafeRenderedCharacterPattern, visibleCharacterEscape)
-    .replace(/[\u2028\u2029]/gu, " ")
-    .replace(/\\/g, "\\\\")
-    .replace(/\|/g, "\\|")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;")
-    .trim();
-}
-
-function truncateUtf8(value: string, maxBytes: number): string {
-  if (Buffer.byteLength(value, "utf8") <= maxBytes) {
-    return value;
+function plainTextToken(character: string): string {
+  const codePoint = character.codePointAt(0);
+  if (codePoint === undefined) {
+    return "";
   }
 
-  let remainingBytes = maxBytes - Buffer.byteLength(TRUNCATION_MARKER, "utf8");
-  let truncated = "";
-  for (const character of value) {
-    const characterBytes = Buffer.byteLength(character, "utf8");
-    if (characterBytes > remainingBytes) {
-      break;
-    }
-    truncated += character;
-    remainingBytes -= characterBytes;
-  }
-
-  return `${truncated}${TRUNCATION_MARKER}`;
+  const isAsciiLetter =
+    (codePoint >= 65 && codePoint <= 90) || (codePoint >= 97 && codePoint <= 122);
+  const isAsciiDigit = codePoint >= 48 && codePoint <= 57;
+  return codePoint === 32 || isAsciiLetter || isAsciiDigit ? character : `&#${codePoint};`;
 }
 
 function tableCell(value: string, maxBytes = MAX_METADATA_CELL_BYTES): string {
-  return truncateUtf8(escapeTableCell(value), maxBytes);
+  const normalized = value
+    .replace(unsafeRenderedCharacterPattern, visibleCharacterEscape)
+    .replace(/[\u2028\u2029]/gu, " ")
+    .trim();
+  const tokens: string[] = [];
+  let previousCharacterWasNonSpace = false;
+  for (const character of normalized) {
+    const token = plainTextToken(character);
+    const isSpace = character === " ";
+    tokens.push(
+      previousCharacterWasNonSpace && !isSpace ? `${INVISIBLE_TEXT_BREAK}${token}` : token,
+    );
+    previousCharacterWasNonSpace = !isSpace;
+  }
+  const rendered = tokens.join("");
+  if (Buffer.byteLength(rendered, "utf8") <= maxBytes) {
+    return rendered;
+  }
+
+  const contentBudget = maxBytes - Buffer.byteLength(TRUNCATION_MARKER, "utf8");
+  let renderedBytes = 0;
+  let truncated = "";
+  for (const token of tokens) {
+    const tokenBytes = Buffer.byteLength(token, "utf8");
+    if (renderedBytes + tokenBytes > contentBudget) {
+      break;
+    }
+    truncated += token;
+    renderedBytes += tokenBytes;
+  }
+
+  return `${truncated}${TRUNCATION_MARKER}`;
 }
 
 function renderTableRow(packet: EvidencePacket): string {

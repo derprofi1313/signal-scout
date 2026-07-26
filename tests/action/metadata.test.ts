@@ -55,6 +55,7 @@ interface BundledAction {
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const temporaryDirectories: string[] = [];
 const require = createRequire(import.meta.url);
+const INVISIBLE_TEXT_BREAK = "&#8203;";
 
 function actionMetadata(): ActionMetadata {
   return parse(readFileSync(resolve(repositoryRoot, "action.yml"), "utf8")) as ActionMetadata;
@@ -71,6 +72,10 @@ function distributionGate(): string {
     throw new Error("The GitHub Action distribution gate is missing");
   }
   return gate.run;
+}
+
+function withoutInvisibleTextBreaks(value: string): string {
+  return value.replaceAll(INVISIBLE_TEXT_BREAK, "");
 }
 
 async function temporaryDirectory(prefix: string): Promise<string> {
@@ -200,9 +205,8 @@ describe("GitHub Action metadata", () => {
       readFile(join(directory, ".signal-scout", "reports", "public-plans.json"), "utf8"),
     ).resolves.toContain('"status": "baseline"');
     await expect(readFile(outputPath, "utf8")).resolves.toContain("baseline-count=1\n");
-    await expect(readFile(summaryPath, "utf8")).resolves.toContain(
-      "| Public plans | baseline | 0 | none |",
-    );
+    const summary = withoutInvisibleTextBreaks(await readFile(summaryPath, "utf8"));
+    expect(summary).toContain("| Public plans | baseline | 0 | none |");
   });
 });
 
