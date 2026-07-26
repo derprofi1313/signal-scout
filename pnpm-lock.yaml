@@ -17,13 +17,13 @@ importers:
         version: 1.2.0
       next:
         specifier: 16.2.11
-        version: 16.2.11(@playwright/test@1.62.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 16.2.11(@playwright/test@1.62.0)(react-dom@19.2.8(react@19.2.4))(react@19.2.4)
       react:
         specifier: 19.2.4
         version: 19.2.4
       react-dom:
-        specifier: 19.2.4
-        version: 19.2.4(react@19.2.4)
+        specifier: 19.2.8
+        version: 19.2.8(react@19.2.4)
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -861,10 +861,10 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
-  react-dom@19.2.4:
-    resolution: {integrity: sha512-AXJdLo8kgMbimY95O2aKQqsz2iWi9jMgKJhRBAxECE4IFxfcazB2LmzloIoibJI3C12IlY20+KFaLv+71bUJeQ==}
+  react-dom@19.2.8:
+    resolution: {integrity: sha512-rVprimfGBG3DR+Tq0IQG2DT5PxKth1WIGDmj5yPmlzr4YBe7uyE+Du4oVqTDXZSHGGGXRtTJEGSSePyQCMBglQ==}
     peerDependencies:
-      react: ^19.2.4
+      react: ^19.2.8
 
   react@19.2.4:
     resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
@@ -1624,7 +1624,7 @@ snapshots:
 
   nanoid@3.3.16: {}
 
-  next@16.2.11(@playwright/test@1.62.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  next@16.2.11(@playwright/test@1.62.0)(react-dom@19.2.8(react@19.2.4))(react@19.2.4):
     dependencies:
       '@next/env': 16.2.11
       '@swc/helpers': 0.5.15
@@ -1632,7 +1632,7 @@ snapshots:
       caniuse-lite: 1.0.30001806
       postcss: 8.5.23
       react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
+      react-dom: 19.2.8(react@19.2.4)
       styled-jsx: 5.1.6(react@19.2.4)
     optionalDependencies:
       '@next/swc-darwin-arm64': 16.2.11
@@ -1689,7 +1689,7 @@ snapshots:
 
   prettier@3.9.6: {}
 
-  react-dom@19.2.4(react@19.2.4):
+  react-dom@19.2.8(react@19.2.4):
     dependencies:
       react: 19.2.4
       scheduler: 0.27.0
