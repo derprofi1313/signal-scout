@@ -134,4 +134,23 @@ describe("action scan summaries", () => {
     expect(rendered).not.toContain("PRIVATE BEFORE EVIDENCE");
     expect(rendered).not.toContain("PRIVATE AFTER EVIDENCE");
   });
+
+  it("bounds an oversized untrusted scan with a deterministic omission notice", () => {
+    const oversizedSourceName = "untrusted-source-".concat("x".repeat(16 * 1024));
+    const packets = Array.from({ length: 500 }, (_, index) => {
+      const currentPacket = packet("no_change");
+      currentPacket.id = `packet-${index + 1}`;
+      currentPacket.source.name = oversizedSourceName;
+      return currentPacket;
+    });
+    const run: ScanRun = { packets, succeeded: packets.length, failed: 0 };
+
+    const rendered = renderActionSummary(run, summarizeRun(run));
+
+    expect(Buffer.byteLength(rendered, "utf8")).toBeLessThan(1_024 * 1_024);
+    expect(rendered).toContain("…");
+    expect(rendered).toContain("packet-1");
+    expect(rendered).not.toContain("packet-500");
+    expect(rendered).toContain("source rows were omitted to keep this summary bounded.");
+  });
 });

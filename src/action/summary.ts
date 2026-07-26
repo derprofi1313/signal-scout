@@ -19,6 +19,12 @@ const priorityOrder: Readonly<Record<HighestPriority, number>> = {
   high: 3,
 };
 
+const ACTION_SUMMARY_MAX_BYTES = 900 * 1024;
+const MAX_SOURCE_NAME_BYTES = 1_900;
+const MAX_METADATA_CELL_BYTES = 500;
+const TRUNCATION_MARKER = "…";
+const omissionNoticeSuffix = " source rows were omitted to keep this summary bounded.";
+
 function highestPacketPriority(packet: EvidencePacket): HighestPriority {
   let highestPriority: HighestPriority = "none";
 
@@ -101,6 +107,40 @@ function escapeTableCell(value: string): string {
     .trim();
 }
 
+function truncateUtf8(value: string, maxBytes: number): string {
+  if (Buffer.byteLength(value, "utf8") <= maxBytes) {
+    return value;
+  }
+
+  let remainingBytes = maxBytes - Buffer.byteLength(TRUNCATION_MARKER, "utf8");
+  let truncated = "";
+  for (const character of value) {
+    const characterBytes = Buffer.byteLength(character, "utf8");
+    if (characterBytes > remainingBytes) {
+      break;
+    }
+    truncated += character;
+    remainingBytes -= characterBytes;
+  }
+
+  return `${truncated}${TRUNCATION_MARKER}`;
+}
+
+function tableCell(value: string, maxBytes = MAX_METADATA_CELL_BYTES): string {
+  return truncateUtf8(escapeTableCell(value), maxBytes);
+}
+
+function renderTableRow(packet: EvidencePacket): string {
+  const fields = [
+    tableCell(packet.source.name, MAX_SOURCE_NAME_BYTES),
+    tableCell(packet.status),
+    tableCell(String(packet.summary.totalChanges)),
+    tableCell(highestPacketPriority(packet)),
+    tableCell(packet.id),
+  ];
+  return `| ${fields.join(" | ")} |`;
+}
+
 export function actionOutputEntries(summary: ActionRunSummary): readonly [string, string][] {
   return [
     ["baseline-count", String(summary.baselineCount)],
@@ -114,18 +154,7 @@ export function actionOutputEntries(summary: ActionRunSummary): readonly [string
 }
 
 export function renderActionSummary(run: ScanRun, summary: ActionRunSummary): string {
-  const rows = run.packets.map((packet) => {
-    const fields = [
-      packet.source.name,
-      packet.status,
-      String(packet.summary.totalChanges),
-      highestPacketPriority(packet),
-      packet.id,
-    ];
-    return `| ${fields.map(escapeTableCell).join(" | ")} |`;
-  });
-
-  return [
+  const lines = [
     "## Signal Scout scan summary",
     "",
     `- Baselines: ${summary.baselineCount}`,
@@ -137,7 +166,28 @@ export function renderActionSummary(run: ScanRun, summary: ActionRunSummary): st
     "",
     "| Source | Status | Changes | Highest priority | Packet ID |",
     "| --- | --- | ---: | --- | --- |",
-    ...rows,
-    "",
-  ].join("\n");
+  ];
+  let renderedBytes = Buffer.byteLength(lines.join("\n"), "utf8");
+  const omissionNoticeBytes = Buffer.byteLength(
+    `\n\n> ${Number.MAX_SAFE_INTEGER}${omissionNoticeSuffix}\n`,
+    "utf8",
+  );
+  let renderedPacketCount = 0;
+
+  for (const packet of run.packets) {
+    const row = renderTableRow(packet);
+    const rowBytes = Buffer.byteLength(row, "utf8") + 1;
+    if (renderedBytes + rowBytes + omissionNoticeBytes > ACTION_SUMMARY_MAX_BYTES) {
+      break;
+    }
+    lines.push(row);
+    renderedBytes += rowBytes;
+    renderedPacketCount += 1;
+  }
+
+  if (renderedPacketCount < run.packets.length) {
+    lines.push("", `> ${run.packets.length - renderedPacketCount}${omissionNoticeSuffix}`);
+  }
+
+  return `${lines.join("\n")}\n`;
 }
