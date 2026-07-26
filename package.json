@@ -1,6 +1,6 @@
 {
   "name": "signal-scout",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Git-native evidence CI for competitive changes.",
   "private": true,
   "type": "module",
@@ -37,7 +37,8 @@
   "packageManager": "pnpm@11.6.0+sha512.9a36518224080c6fe5165afdcfe79bfa118c29be703f3f462b1e32efe1e98e47e8750b148e08286250aad4113cc7993ca413c4e2cd447752708c2ee5751bc95f",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && pnpm build:cli",
+    "build": "next build && pnpm build:cli && pnpm build:action",
+    "build:action": "node scripts/build-action.mjs",
     "build:cli": "node scripts/build-cli.mjs",
     "prepack": "pnpm build:cli",
     "cli": "tsx src/cli/main.ts",
@@ -59,8 +60,8 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.5",
     "@axe-core/playwright": "4.12.1",
+    "@biomejs/biome": "2.5.5",
     "@playwright/test": "1.62.0",
     "@types/node": "^24",
     "@types/react": "^19",
@@ -70,7 +71,8 @@
     "prettier": "3.9.6",
     "tsx": "4.23.1",
     "typescript": "^5",
-    "vitest": "4.1.10"
+    "vitest": "4.1.10",
+    "yaml": "2.9.0"
   },
   "prettier": {
     "trailingComma": "all",

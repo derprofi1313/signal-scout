@@ -21,7 +21,10 @@
 
 # production
 /build
-/dist
+/dist/*
+!/dist/action/
+/dist/action/*
+!/dist/action/index.cjs
 
 # signal-scout local state
 /.signal-scout

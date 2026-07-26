@@ -37,6 +37,9 @@ jobs:
       - name: Run repository checks
         run: pnpm check
 
+      - name: Verify the committed GitHub Action bundle
+        run: git diff --exit-code -- dist/action/index.cjs
+
       - name: Install Chromium and operating-system dependencies
         run: pnpm exec playwright install --with-deps chromium
 

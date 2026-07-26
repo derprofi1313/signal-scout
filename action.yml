@@ -1,0 +1,37 @@
+name: Signal Scout
+description: Detect and preserve evidence of changes on configured public competitor pages.
+author: Jannik Agethen
+
+branding:
+  icon: search
+  color: blue
+
+inputs:
+  config:
+    description: Path to the Signal Scout configuration file.
+    required: false
+    default: signal-scout.config.json
+  fail-on-change:
+    description: Fail after writing evidence when a changed packet is detected.
+    required: false
+    default: "false"
+
+outputs:
+  baseline-count:
+    description: Number of sources that established a baseline.
+  no-change-count:
+    description: Number of sources whose normalized content did not change.
+  changed-count:
+    description: Number of sources whose normalized content changed.
+  failed-count:
+    description: Number of sources that could not be scanned.
+  high-priority-change-count:
+    description: Number of deterministic high-priority changes.
+  has-changes:
+    description: Whether at least one source produced a changed packet.
+  highest-priority:
+    description: Highest deterministic priority found, or none.
+
+runs:
+  using: node24
+  main: dist/action/index.cjs
