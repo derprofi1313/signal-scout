@@ -1,4 +1,4 @@
-import { readFile, rm, writeFile } from "node:fs/promises";
+import { rm } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 import { build } from "esbuild";
@@ -16,6 +16,3 @@ await build({
   target: "node24",
   minifyWhitespace: true,
 });
-
-const bundle = await readFile(outputFile, "utf8");
-await writeFile(outputFile, bundle.replace(/^[\t ]+$/gm, ""), "utf8");
