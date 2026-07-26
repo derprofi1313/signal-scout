@@ -1,9 +1,9 @@
 # Architecture
 
-Signal Scout is a local evidence pipeline with two consumers: a thin CLI for
-real captures and a static website for an explicitly synthetic demonstration.
-The framework-independent core is the only place that transforms source content
-into evidence.
+Signal Scout is a local evidence pipeline with three consumers: a thin CLI for
+real captures, a bundled GitHub JavaScript Action for CI, and a static website
+for an explicitly synthetic demonstration. The framework-independent core is
+the only place that transforms source content into evidence.
 
 ## System flow
 
@@ -54,6 +54,10 @@ snapshot, the transformation and ordering are deterministic.
 | `src/core/scan.ts`      | Orchestrate sources through injected boundaries and preserve partial success  | Contain UI code                  |
 | `src/core/report.ts`    | Render a packet as reviewable Markdown                                        | Add unsupported advice           |
 | `src/cli/index.ts`      | Parse commands, separate stdout/stderr, and map exit codes                    | Reimplement core behavior        |
+| `src/action/summary.ts` | Aggregate a `ScanRun` and render bounded, escaped job-summary metadata        | Render evidence fragments        |
+| `src/action/index.ts`   | Invoke the real CLI and append Action outputs/summary environment files       | Change scan or packet semantics  |
+| `action.yml`            | Declare two inputs, seven outputs, Node 24, and the bundle entrypoint         | Install dependencies for callers |
+| `dist/action/index.cjs` | Committed CommonJS distribution generated from the Action runner              | Be edited as source              |
 | `src/app/**`            | Explain the model and render a typed synthetic packet                         | Fetch or mutate local scan state |
 
 Core modules do not import Next.js. The website consumes the shared
@@ -149,6 +153,35 @@ ignores `/.signal-scout` by default to prevent accidental publication. The
 operator reviews artifacts first and must explicitly opt in with
 `git add -f .signal-scout` before they belong in Git history; subsequent tracked
 scans can be reviewed with a normal Git diff.
+
+## GitHub Action boundary
+
+The root `action.yml` runs `dist/action/index.cjs` with GitHub's Node 24 Action
+runtime. `scripts/build-action.mjs` bundles the runner and its dependencies as
+CommonJS; the generated bundle is committed, excluded from formatting, and
+rebuilt in CI. CI rejects both a changed bundle and an untracked bundle, so the
+metadata entrypoint is reproducible from the reviewed sources.
+
+The runner reads `config` (default `signal-scout.config.json`) and
+`fail-on-change` (default `"false"`) from the GitHub Action input environment,
+then invokes the existing CLI scan path. It accepts only boolean values for the
+change gate. It writes the seven literal outputs—baseline, unchanged, changed,
+failed, high-priority-change counts, `has-changes`, and
+`highest-priority`—to `GITHUB_OUTPUT` when that file exists. It appends a
+metadata-only table to `GITHUB_STEP_SUMMARY` when that file exists. The table
+is escaped and bounded to 900 KiB; it contains no captured before/after
+fragments.
+
+Action failure is deliberately post-write for a completed scan: scan failures
+and `fail-on-change: "true"` both return `1` only after successful packets,
+outputs, and summary data have been preserved. Invalid action input returns
+`1` before scanning. When GitHub's environment-file variables are absent, the
+same bundled runner is still usable locally and simply omits those appends.
+
+The action has no GitHub token input and makes no GitHub API write. It does not
+restore or save caches, upload artifacts, commit evidence, create pull requests,
+or manage the caller repository. Those side effects are explicit caller
+workflow steps.
 
 ## Website boundary
 

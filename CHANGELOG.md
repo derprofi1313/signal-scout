@@ -8,6 +8,27 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 No changes yet.
 
+## [0.2.0] - 2026-07-26
+
+### Added
+
+- A root GitHub JavaScript Action with two inputs (`config` and
+  `fail-on-change`), seven literal scan outputs, and a Node 24 committed
+  CommonJS bundle.
+- A bounded, escaped, metadata-only GitHub job summary that never includes
+  captured before/after evidence fragments.
+- A pinned consumer-workflow example that leaves baseline cache and evidence
+  artifact retention under the caller's explicit control.
+
+### Changed
+
+- The bundled Action reuses the existing CLI scan path and preserves the
+  `signal-scout/evidence@1` packet schema and CLI scan semantics. A configured
+  change gate fails only after evidence, outputs, and summary data are written.
+
+No npm package, GitHub Marketplace listing, or hosted Signal Scout service is
+released with v0.2.0.
+
 ## [0.1.1] - 2026-07-25
 
 ### Security
@@ -30,6 +51,7 @@ No changes yet.
 No npm publication or hosted Signal Scout service is represented by this
 release.
 
-[Unreleased]: https://github.com/derprofi1313/signal-scout/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/derprofi1313/signal-scout/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/derprofi1313/signal-scout/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/derprofi1313/signal-scout/releases/tag/v0.1.1
 [0.1.0]: https://github.com/derprofi1313/signal-scout/releases/tag/v0.1.0

@@ -82,10 +82,30 @@ machine-readable JSON retains the original evidence.
 
 ### GitHub Actions
 
-The example workflow executes repository code on a hosted runner and can cache
-baseline state and upload reports. It does not commit or open pull requests.
-Repository maintainers remain responsible for workflow permissions, dependency
-pinning policy, artifact retention, branch protection, and review.
+The root Action is a committed Node 24 CommonJS bundle declared by `action.yml`.
+It accepts only a configuration path and a strict boolean change gate. It uses
+the existing scanner, so its successful packets retain the same
+`signal-scout/evidence@1` contract and local storage behavior as CLI scans.
+
+When GitHub exposes environment files, the Action appends seven literal outputs
+to `GITHUB_OUTPUT` and a bounded (900 KiB) Markdown job summary to
+`GITHUB_STEP_SUMMARY`. The summary is a convenience signal, not evidence: it
+contains escaped source name, status, change count, highest priority, and packet
+ID, never captured before/after fragments. Treat source names as untrusted
+input even after escaping, and review the stored evidence packets before acting.
+
+The Action requests no token, performs no GitHub API write, and does not restore
+or save caches, upload artifacts, commit, or open pull requests. A caller that
+wants cache retention or artifact upload must add and pin those workflow steps;
+the example does so explicitly. Repository maintainers remain responsible for
+workflow permissions, immutable Action and third-party Action pins, artifact
+retention, branch protection, and review.
+
+The Action writes successful evidence, outputs, and its summary before returning
+`1` for a source failure or a configured detected change. That ordering makes a
+failed job reviewable; it does not prove an artifact was retained, that a cache
+was saved, or that a reviewer inspected it. Invalid `fail-on-change` input is
+rejected before scanning.
 
 ### Website demo
 

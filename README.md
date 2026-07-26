@@ -202,12 +202,81 @@ decision.
 
 See [Architecture](docs/architecture.md) for module and data-flow details.
 
-## GitHub Actions example
+## GitHub Action
 
-[`examples/github-actions/scan.yml`](examples/github-actions/scan.yml) shows a
-scheduled workflow that installs Node 24 and pnpm 11, invokes the checked-out
-CLI, preserves baseline state in an Actions cache, and uploads reports as an
-artifact. It never commits changes or opens a pull request.
+Signal Scout v0.2.0 adds a root GitHub JavaScript Action. It bundles its Node
+24 runtime dependencies, so a calling workflow does not install Node, pnpm, or
+this repository's package dependencies. The action runs the same `scan`
+pipeline and writes the same `signal-scout/evidence@1` packets as the local
+CLI.
+
+[`examples/github-actions/scan.yml`](examples/github-actions/scan.yml) is a
+scheduled, repository-local example. Its checkout, cache, and artifact actions
+are pinned to immutable commits; those steps remain owned and chosen by the
+calling workflow.
+
+```yaml
+- name: Scan public sources
+  id: signal-scout
+  uses: ./
+  with:
+    config: signal-scout.config.json
+```
+
+`uses: ./` means “use the action checked out in this repository” and is useful
+for developing Signal Scout. A consumer replaces it with
+`derprofi1313/signal-scout@<full immutable commit SHA>`. After the v0.2.0
+release exists, `derprofi1313/signal-scout@v0.2.0` is a convenient shorthand,
+but a tag is mutable; use a full commit SHA where reproducibility matters.
+
+### Inputs
+
+| Input            | Default                    | Meaning                                                                                                  |
+| ---------------- | -------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `config`         | `signal-scout.config.json` | Path to the configuration file, resolved by the same scanner as the CLI.                                 |
+| `fail-on-change` | `"false"`                  | Only `true` or `false` (case-insensitive); `true` fails after evidence is written when a source changed. |
+
+An invalid `fail-on-change` value fails the action before a scan. A source
+failure also makes the action fail, but successful-source evidence, outputs,
+and the job summary are written first. With `fail-on-change: "true"`, a changed
+scan fails only after those writes; it never discards the evidence that caused
+the gate.
+
+### Outputs
+
+Use the step ID from the example, such as
+`${{ steps.signal-scout.outputs.changed-count }}`, to consume these literal
+string outputs.
+
+| Output                       | Meaning                                                        |
+| ---------------------------- | -------------------------------------------------------------- |
+| `baseline-count`             | Sources that established a first baseline.                     |
+| `no-change-count`            | Sources whose normalized content was unchanged.                |
+| `changed-count`              | Sources whose normalized content changed.                      |
+| `failed-count`               | Sources that could not be scanned.                             |
+| `high-priority-change-count` | Deterministic changes with priority `high`.                    |
+| `has-changes`                | `true` when at least one source produced a changed packet.     |
+| `highest-priority`           | `high`, `medium`, `low`, or `none` across all scanned packets. |
+
+When GitHub provides `GITHUB_OUTPUT` and `GITHUB_STEP_SUMMARY`, the action
+appends the outputs and a scan table to those files. The table includes only
+bounded metadata—source name, status, change count, highest priority, and
+packet ID—and never includes captured before/after fragments. Untrusted source
+text is escaped and the summary is bounded below GitHub's per-step limit (at
+most 900 KiB). Running the bundled action locally without those environment
+files still writes evidence and returns the same action status.
+
+### Cache, artifacts, and side effects
+
+The action writes evidence to the configured local `storageDir` exactly as the
+CLI does. It does not save or restore a cache, upload an artifact, call the
+GitHub API, request a token, commit, or open a pull request. Keep cache and
+artifact steps explicit in the caller workflow; the example restores and saves
+`.signal-scout/baselines` and uploads `.signal-scout/reports` with
+`if: always()` so review data survives a failing scan.
+
+This is a GitHub source release, not an npm package, a GitHub Marketplace
+listing, or a hosted Signal Scout service.
 
 ## Local quality gates
 
