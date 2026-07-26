@@ -264,10 +264,7 @@ export async function runCli(argv: string[], io: CliIo = defaultIo()): Promise<n
   }
 }
 
-export function isDirectCliEntry(
-  entryPath: string | undefined,
-  moduleUrl = import.meta.url,
-): boolean {
+export function isDirectCliEntry(entryPath: string | undefined, moduleUrl: string): boolean {
   if (!entryPath) {
     return false;
   }
@@ -277,9 +274,4 @@ export function isDirectCliEntry(
   } catch {
     return false;
   }
-}
-
-const entryPath = process.argv[1];
-if (isDirectCliEntry(entryPath)) {
-  process.exitCode = await runCli(process.argv.slice(2));
 }

@@ -40,7 +40,7 @@
     "build": "next build && pnpm build:cli",
     "build:cli": "node scripts/build-cli.mjs",
     "prepack": "pnpm build:cli",
-    "cli": "tsx src/cli/index.ts",
+    "cli": "tsx src/cli/main.ts",
     "start": "next start",
     "lint": "biome lint --error-on-warnings .",
     "typecheck": "tsc --noEmit",

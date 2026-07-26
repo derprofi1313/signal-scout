@@ -104,7 +104,7 @@ function capture(body: string, source: SignalScoutSource): FetchResult {
 describe("Signal Scout CLI", () => {
   it("recognizes an installed package-bin symlink as the direct entry", async () => {
     const directory = await temporaryDirectory();
-    const modulePath = fileURLToPath(new URL("../../src/cli/index.ts", import.meta.url));
+    const modulePath = fileURLToPath(new URL("../../src/cli/main.ts", import.meta.url));
     const binPath = join(directory, "signal-scout");
     await symlink(modulePath, binPath);
 

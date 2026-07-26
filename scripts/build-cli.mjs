@@ -8,7 +8,7 @@ const outputFile = fileURLToPath(new URL("../dist/cli/index.js", import.meta.url
 
 await rm(outputDirectory, { recursive: true, force: true });
 await build({
-  entryPoints: ["src/cli/index.ts"],
+  entryPoints: ["src/cli/main.ts"],
   outfile: outputFile,
   bundle: true,
   packages: "external",
