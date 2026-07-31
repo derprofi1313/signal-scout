@@ -56,6 +56,9 @@ const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const temporaryDirectories: string[] = [];
 const require = createRequire(import.meta.url);
 const INVISIBLE_TEXT_BREAK = "&#8203;";
+const bashAvailable =
+  spawnSync("bash", ["--version"], { encoding: "utf8", stdio: "ignore" }).status === 0;
+const distributionGateTest = bashAvailable ? it : it.skip;
 
 function actionMetadata(): ActionMetadata {
   return parse(readFileSync(resolve(repositoryRoot, "action.yml"), "utf8")) as ActionMetadata;
@@ -100,6 +103,12 @@ afterEach(async () => {
 });
 
 describe("GitHub Action metadata", () => {
+  if (process.env.CI && !bashAvailable) {
+    it("has bash available for distribution-gate verification in CI", () => {
+      expect(bashAvailable).toBe(true);
+    });
+  }
+
   it("declares the public Node 24 inputs, outputs, and bundled entrypoint", () => {
     const metadata = actionMetadata();
 
@@ -211,22 +220,25 @@ describe("GitHub Action metadata", () => {
 });
 
 describe("GitHub Action distribution gate", () => {
-  it("rejects an untracked regenerated bundle even when the working-tree diff is empty", async () => {
-    const directory = await temporaryDirectory("signal-scout-dist-gate-");
-    const bundlePath = join(directory, "dist", "action", "index.cjs");
-    await mkdir(join(directory, "dist", "action"), { recursive: true });
-    await writeFile(bundlePath, "module.exports = {};\n", "utf8");
-    git(directory, ["init", "--quiet"]);
+  distributionGateTest(
+    "rejects an untracked regenerated bundle even when the working-tree diff is empty",
+    async () => {
+      const directory = await temporaryDirectory("signal-scout-dist-gate-");
+      const bundlePath = join(directory, "dist", "action", "index.cjs");
+      await mkdir(join(directory, "dist", "action"), { recursive: true });
+      await writeFile(bundlePath, "module.exports = {};\n", "utf8");
+      git(directory, ["init", "--quiet"]);
 
-    const result = spawnSync("bash", ["-euo", "pipefail", "-c", distributionGate()], {
-      cwd: directory,
-      encoding: "utf8",
-    });
+      const result = spawnSync("bash", ["-euo", "pipefail", "-c", distributionGate()], {
+        cwd: directory,
+        encoding: "utf8",
+      });
 
-    expect(result.status).not.toBe(0);
-  });
+      expect(result.status).not.toBe(0);
+    },
+  );
 
-  it("accepts a tracked bundle when the generated file is clean", async () => {
+  distributionGateTest("accepts a tracked bundle when the generated file is clean", async () => {
     const directory = await temporaryDirectory("signal-scout-dist-gate-");
     const bundlePath = join(directory, "dist", "action", "index.cjs");
     await mkdir(join(directory, "dist", "action"), { recursive: true });

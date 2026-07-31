@@ -1,5 +1,5 @@
 import { mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { platform, tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -58,6 +58,19 @@ async function writeStoredPacket(directory: string): Promise<string> {
   return packetPath;
 }
 
+async function createFileSymlinkIfSupported(target: string, path: string): Promise<boolean> {
+  try {
+    await symlink(target, path, "file");
+    return true;
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (platform() === "win32" && (code === "EPERM" || code === "EINVAL")) {
+      return false;
+    }
+    throw error;
+  }
+}
+
 afterEach(async () => {
   await Promise.all(
     temporaryDirectories
@@ -102,11 +115,25 @@ function capture(body: string, source: SignalScoutSource): FetchResult {
 }
 
 describe("Signal Scout CLI", () => {
-  it("recognizes an installed package-bin symlink as the direct entry", async () => {
+  it("recognizes the direct CLI module entry", () => {
+    const modulePath = fileURLToPath(new URL("../../src/cli/main.ts", import.meta.url));
+
+    expect(isDirectCliEntry(modulePath, pathToFileURL(modulePath).href)).toBe(true);
+  });
+
+  it("recognizes an installed package-bin symlink as the direct entry", async ({ skip }) => {
     const directory = await temporaryDirectory();
     const modulePath = fileURLToPath(new URL("../../src/cli/main.ts", import.meta.url));
     const binPath = join(directory, "signal-scout");
-    await symlink(modulePath, binPath);
+    const symlinkCreated = await createFileSymlinkIfSupported(modulePath, binPath);
+
+    if (!symlinkCreated) {
+      if (process.env.CI) {
+        throw new Error("CI must support file symlinks for package-bin entry verification");
+      }
+      skip("File symlink creation is not available in this Windows environment");
+      return;
+    }
 
     expect(isDirectCliEntry(binPath, pathToFileURL(modulePath).href)).toBe(true);
     expect(isDirectCliEntry(join(directory, "missing"), pathToFileURL(modulePath).href)).toBe(

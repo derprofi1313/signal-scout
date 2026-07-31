@@ -14,12 +14,18 @@ function sha256(value: string): string {
   return createHash("sha256").update(value, "utf8").digest("hex");
 }
 
+function canonicalFixtureText(value: string): string {
+  return value.replaceAll("\r\n", "\n");
+}
+
 describe("synthetic demo evidence", () => {
   it("keeps its hashes and fragments tied to the shipped fixture captures", async () => {
-    const [beforeRaw, afterRaw] = await Promise.all([
+    const [beforeInput, afterInput] = await Promise.all([
       readFile("tests/fixtures/demo-before.html", "utf8"),
       readFile("tests/fixtures/demo-after.html", "utf8"),
     ]);
+    const beforeRaw = canonicalFixtureText(beforeInput);
+    const afterRaw = canonicalFixtureText(afterInput);
     const before = normalizeHtml(beforeRaw, fixtureOptions);
     const after = normalizeHtml(afterRaw, fixtureOptions);
 
